@@ -1,0 +1,2407 @@
+<!DOCTYPE html>
+<html lang="es" data-anim="full" data-visual="day" data-text="normal">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Reino de Aldemar — Crónicas del Reino</title>
+<meta name="description" content="Calculadora de nota universitaria con ambientación medieval: presenta tus puntos ante el Consejo del Reino de Aldemar.">
+<meta name="theme-color" content="#1a0f08">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72'%3E%3Cpath d='M32 8L56 17v20c0 15-10 25-24 31C18 62 8 52 8 37V17z' fill='%234b1f6f' stroke='%23e2b653' stroke-width='4'/%3E%3Cpath d='M32 22v30M21 33h22' stroke='%23e2b653' stroke-width='5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════ PERSONAJES ═══════════ */
+.char{position:relative;width:100%;height:100%}
+.char-svg{display:block;width:100%;height:100%;overflow:visible}
+.char .rig{transform-origin:120px 396px;animation:breathe 4.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:translateY(0) scale(1,1)}50%{transform:translateY(-1.6px) scale(1.004,1.01)}}
+.char .head{transform-origin:120px 150px;animation:headIdle 6.2s ease-in-out infinite}
+@keyframes headIdle{0%,100%{transform:rotate(-.8deg)}50%{transform:rotate(.9deg) translateY(-.6px)}}
+.char.speaking .head{animation:headTalk 1.3s ease-in-out infinite}
+@keyframes headTalk{0%,100%{transform:rotate(-1deg)}30%{transform:rotate(1.6deg) translateY(-1.5px)}60%{transform:rotate(-.4deg) translateY(.5px)}}
+.char .lid{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0);animation:blink 5.6s infinite}
+@keyframes blink{0%,93%,100%{transform:scaleY(0)}95.5%{transform:scaleY(1)}98%{transform:scaleY(0)}}
+.char .talk{opacity:0;transform-box:fill-box;transform-origin:50% 28%}
+.char.speaking .talk{opacity:1;animation:talk .42s ease-in-out infinite}
+@keyframes talk{0%,100%{transform:scaleY(.12)}30%{transform:scaleY(1)}55%{transform:scaleY(.35)}80%{transform:scaleY(.85)}}
+.char .armL{transition:transform .8s cubic-bezier(.3,.8,.3,1);transform:rotate(var(--al,0deg))}
+.char .armR{transition:transform .8s cubic-bezier(.3,.8,.3,1);transform:rotate(var(--ar,0deg))}
+.char .foreL{transition:transform .8s cubic-bezier(.3,.8,.3,1);transform:rotate(var(--fl,0deg))}
+.char .foreR{transition:transform .8s cubic-bezier(.3,.8,.3,1);transform:rotate(var(--fr,0deg))}
+.char.speaking .foreR{animation:gestR 2.1s ease-in-out infinite}
+.char.speaking .foreL{animation:gestL 2.9s ease-in-out infinite}
+@keyframes gestR{0%,100%{transform:rotate(var(--fr,0deg))}35%{transform:rotate(calc(var(--fr,0deg) - 16deg))}70%{transform:rotate(calc(var(--fr,0deg) - 5deg))}}
+@keyframes gestL{0%,100%{transform:rotate(var(--fl,0deg))}45%{transform:rotate(calc(var(--fl,0deg) + 10deg))}}
+/* poses según ánimo */
+.char[data-mood="pleased"]{--ar:-10deg}
+.char[data-mood="happy"]{--al:8deg;--ar:-8deg;--fl:-30deg;--fr:30deg}
+.char[data-mood="radiant"]{--al:128deg;--ar:-128deg}
+.char[data-mood="stern"]{--ar:-52deg;--fr:-18deg;--fl:-46deg;--al:-14deg}
+.char[data-mood="wary"]{--fl:-118deg;--al:-8deg}
+.char[data-mood="sad"]{--al:-4deg;--ar:4deg;--fl:-12deg;--fr:12deg}
+.char[data-mood="surprised"]{--al:22deg;--ar:-22deg;--fl:18deg;--fr:-18deg}
+.char[data-mood="smirk"]{--fr:26deg}
+.char[data-mood="thinking"]{--fr:124deg;--ar:8deg}
+.char[data-char="caballero"]{--ar:0deg!important;--fr:0deg!important}
+.char[data-char="caballero"][data-mood="radiant"]{--al:120deg}
+.char[data-char="bufon"][data-mood="neutral"]{--ar:-6deg}
+@media (prefers-reduced-motion:reduce){.char *{animation:none!important}}
+body.anim-off .char *,body.anim-off .char{animation:none!important;transition:none!important}
+body.anim-reduced .char .rig,body.anim-reduced .char .head{animation:none!important}
+.char.portrait .char-svg{overflow:hidden}
+.char.portrait[data-mood]{--al:0deg;--ar:0deg;--fl:0deg;--fr:0deg}
+
+/* ═══════════════ REINO DE ALDEMAR — Crónicas del Reino ═══════════════ */
+:root{
+  --gold:#e2b653;--gold-hi:#fbe7a1;--gold-lo:#8f6420;
+  --oak:#3d2415;--oak-d:#1a0f08;--oak-m:#2a1a0f;
+  --parch:#ecdcb2;--parch-2:#d9c088;--ink:#2a170a;--ink-soft:#5a3b20;
+  --ruby:#a12522;--royal:#4b1f6f;--emerald:#2f6b3a;
+  --text:#f4e8c9;--muted:#cdbb90;--line:rgba(226,182,83,.34);
+  --t0:#b02a25;--t2:#b8702a;--t3:#3f7d3a;--t4:#c99a2e;--t5:#7a34b5;
+  --f-display:'Cinzel Decorative','Cinzel',Georgia,'Times New Roman',serif;
+  --f-ui:'Cinzel',Georgia,'Times New Roman',serif;
+  --f-read:'EB Garamond',Georgia,'Times New Roman',serif;
+  --bar:64px;
+}
+*{box-sizing:border-box}
+html{font-size:17px;-webkit-text-size-adjust:100%}
+html[data-text="large"]{font-size:19.5px}
+body{margin:0;min-height:100vh;min-height:100dvh;background:#0d0805 radial-gradient(ellipse at 50% -10%,#2c1f14,#0d0805 70%) fixed;color:var(--text);font-family:var(--f-read);font-size:1rem;line-height:1.5;overflow-x:hidden}
+h1,h2,h3,p{margin:0}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+button:disabled{cursor:not-allowed;opacity:.55}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--gold-hi);outline-offset:2px;border-radius:3px}
+.sr-only{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip-link{position:fixed;left:8px;top:-60px;z-index:400;background:var(--gold);color:var(--ink);padding:8px 14px;font-family:var(--f-ui);font-weight:700;border-radius:4px}
+.skip-link:focus{top:8px}
+.ico{width:1.35em;height:1.35em;flex:none;display:inline-block;vertical-align:middle}
+.ico.big{width:2.6rem;height:2.6rem}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--gold-lo);border-radius:6px}::-webkit-scrollbar-track{background:#150d07}
+
+/* ═════ BOTONES ═════ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:.55rem 1.15rem;border-radius:5px;font-family:var(--f-ui);font-weight:700;font-size:.9rem;letter-spacing:.02em;line-height:1.2;text-align:center;transition:transform .15s,box-shadow .15s,filter .15s}
+.btn-gold{color:#2a1503;background:linear-gradient(#fbe7a1,#dcae49 55%,#a87a2a);border:1px solid #6b4a12;box-shadow:0 3px 0 #5a3d0e,0 8px 16px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.55)}
+.btn-gold:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.btn-gold:active{transform:translateY(2px);box-shadow:0 1px 0 #5a3d0e}
+.btn-parch{color:var(--ink);background:rgba(255,255,255,.28);border:1.5px solid rgba(90,59,32,.7)}
+.btn-parch:hover{background:rgba(255,255,255,.5)}
+.btn-danger{color:#ffe3dc;background:linear-gradient(#b8382a,#7a1d14);border:1px solid #4a0f09;box-shadow:0 3px 0 #3a0b06}
+.btn-danger:hover{filter:brightness(1.1)}
+.btn-lg{min-height:52px;padding:.7rem 1.6rem;font-size:1rem}
+.btn-sm{min-height:38px;padding:.35rem .85rem;font-size:.8rem}
+.link-btn{color:var(--muted);text-decoration:underline;text-underline-offset:3px;font-size:.92rem;min-height:44px;padding:0 .5rem}
+.link-btn:hover{color:var(--gold-hi)}
+.icon-btn{position:relative;display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;color:var(--gold-hi);background:linear-gradient(#4a3423,#2a1a0f);border:1.5px solid var(--gold-lo);transition:background .15s,transform .15s}
+.icon-btn:hover{background:linear-gradient(#5e432c,#35220f);transform:translateY(-1px)}
+.icon-btn.big{width:54px;height:54px;background:linear-gradient(#fbe7a1,#c99a3c);color:#2a1503;border-color:#6b4a12}
+.icon-btn[aria-pressed="true"],.icon-btn[aria-expanded="true"]{background:linear-gradient(#a87a2a,#6b4a12);color:#fff5d0}
+
+/* ═════ BARRA SUPERIOR ═════ */
+.topbar{position:sticky;top:0;z-index:100;height:var(--bar);display:flex;align-items:center;gap:14px;padding:0 clamp(10px,2vw,22px);background:linear-gradient(#24160c,#150c06);border-bottom:2px solid var(--gold-lo);box-shadow:0 6px 20px rgba(0,0,0,.55)}
+.topbar:after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.5}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 4px 2px;border-radius:6px;text-align:left;min-height:44px}
+.brand:hover .brand-name{color:#fff5d0}
+.crest{width:38px;height:42px;flex:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+.brand-text{display:flex;flex-direction:column;line-height:1.1}
+.brand-name{font-family:var(--f-display);font-weight:900;font-size:1.02rem;color:var(--gold-hi);white-space:nowrap;transition:color .2s}
+.brand-sub{font-family:var(--f-ui);font-size:.68rem;color:var(--muted);margin-top:3px;white-space:nowrap}
+.nav{display:flex;gap:4px;margin:0 auto}
+.nav-btn{position:relative;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:5px;font-family:var(--f-ui);font-weight:600;font-size:.84rem;color:var(--muted);transition:color .15s,background .15s;white-space:nowrap}
+.nav-btn:hover{color:var(--gold-hi);background:rgba(255,255,255,.06)}
+.nav-btn[aria-current="page"]{color:var(--gold-hi)}
+.nav-btn[aria-current="page"]:after{content:"";position:absolute;left:14px;right:14px;bottom:2px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi),var(--gold-lo))}
+.top-tools{display:flex;align-items:center;gap:10px;margin-left:auto}
+.nav+.top-tools{margin-left:0}
+.rank{display:flex;align-items:center;gap:9px;padding:4px 12px 4px 5px;border-radius:26px;background:rgba(0,0,0,.35);border:1px solid var(--line)}
+.rank-lvl{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fbe7a1,#b98a2f);color:#2a1503;font-family:var(--f-display);font-weight:900;font-size:.95rem;border:2px solid #6b4a12}
+.rank-info{display:flex;flex-direction:column;gap:4px;min-width:112px}
+.rank-title{font-family:var(--f-ui);font-size:.7rem;font-weight:600;color:var(--text);line-height:1;white-space:nowrap}
+.xpbar{display:block;height:7px;border-radius:4px;background:#120a05;border:1px solid var(--gold-lo);overflow:hidden}
+.xpfill{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi));transition:width .7s cubic-bezier(.3,.8,.3,1)}
+.eq{position:absolute;right:-3px;bottom:-3px;display:none;gap:2px;align-items:flex-end;height:14px;padding:2px 3px;border-radius:4px;background:#150c06;border:1px solid var(--gold-lo)}
+.eq i,.mp-eq i{display:block;width:3px;height:100%;background:var(--gold-hi);transform-origin:50% 100%;transform:scaleY(.3);border-radius:1px}
+body.music-on .eq{display:flex}
+body.music-on .eq i,body.music-on .mp-eq i{animation:eq 1s ease-in-out infinite}
+.eq i:nth-child(2),.mp-eq i:nth-child(2){animation-delay:-.4s!important}.eq i:nth-child(3),.mp-eq i:nth-child(3){animation-delay:-.75s!important}
+.mp-eq i:nth-child(4){animation-delay:-.2s!important}.mp-eq i:nth-child(5){animation-delay:-.6s!important}
+@keyframes eq{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+.menu-toggle{display:none}
+body[data-state="menu"] .nav,body[data-state="menu"] .menu-toggle{visibility:hidden}
+
+/* ═════ ESCENARIO ═════ */
+.stage{position:relative;max-width:1280px;margin:0 auto}
+.scene{position:relative;margin:0 auto;width:min(100%,calc(53vh*1.875));min-width:min(100%,640px);aspect-ratio:1200/640;container-type:size;overflow:hidden;background:#120c07;box-shadow:0 0 0 3px var(--oak-d),0 0 0 5px var(--gold-lo),0 18px 40px rgba(0,0,0,.6)}
+.hall-bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sky{fill:#e0884a}.sun{fill:#ffe7a3}.ray-stop{stop-color:#ffcb7a}
+[data-visual="night"] .sky{fill:#1b2a55}[data-visual="night"] .sun{fill:#e9eefc}[data-visual="night"] .ray-stop{stop-color:#8fb2ff}
+[data-visual="torch"] .sky{fill:#0d1230}[data-visual="torch"] .sun{fill:#b8bfd8;opacity:.6}[data-visual="torch"] .ray-stop{stop-color:#ffa24a}
+.hall-tint{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,transparent 38%,rgba(0,0,0,.62) 100%)}
+[data-visual="night"] .hall-tint{background:radial-gradient(ellipse at 50% 42%,rgba(20,30,80,.12) 30%,rgba(2,4,20,.72) 100%)}
+[data-visual="torch"] .hall-tint{background:radial-gradient(ellipse at 50% 42%,rgba(0,0,0,.18) 20%,rgba(0,0,0,.82) 100%)}
+[data-visual="torch"] .torch-g .glow{transform:scale(1.5)}
+.torch-g .flame{transform-box:fill-box;transform-origin:50% 100%;animation:flicker 1.6s ease-in-out infinite}
+.torch-g .f2{animation-duration:1.1s;animation-delay:-.4s}
+.torch-g .glow{transform-box:fill-box;transform-origin:50% 50%;animation:glowPulse 2.4s ease-in-out infinite}
+.torch-g.t2 .flame,.torch-g.t2 .glow{animation-delay:-.9s}
+@keyframes flicker{0%,100%{transform:scale(1,1) rotate(-2deg)}30%{transform:scale(.94,1.08) rotate(2deg)}60%{transform:scale(1.04,.93) rotate(-3deg)}}
+@keyframes glowPulse{0%,100%{opacity:.75}50%{opacity:1}}
+.dust{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.mote{position:absolute;bottom:-4px;width:3px;height:3px;border-radius:50%;background:rgba(251,231,161,.55);opacity:0;animation:drift linear infinite}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.7}85%{opacity:.4}100%{transform:translate(var(--dx,20px),-62cqh);opacity:0}}
+.court{position:absolute;inset:0;pointer-events:none}
+#fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
+.flash{position:absolute;inset:0;background:#fff8dc;opacity:0;pointer-events:none;z-index:19}
+.flash.hit{animation:flashHit .6s ease-out}
+@keyframes flashHit{0%{opacity:.75}100%{opacity:0}}
+.scene.shake{animation:shake .5s}
+@keyframes shake{20%,80%{transform:translate3d(-3px,0,0)}40%,60%{transform:translate3d(4px,0,0)}50%{transform:translate3d(-4px,0,0)}}
+
+/* personajes en escena */
+.slot{position:absolute;left:var(--fx);bottom:var(--fb);height:var(--fh);aspect-ratio:240/404;transform:translate(-50%,18px);opacity:0;visibility:hidden;transition:opacity .45s,transform .45s,visibility 0s .45s;z-index:var(--fz,5)}
+.slot.on{opacity:1;visibility:visible;transform:translate(-50%,0);transition:opacity .45s,transform .45s,visibility 0s}
+.slot:not(.on) .char *{animation-play-state:paused!important}
+/* el personaje que habla pasa al frente de la escena (los globos ya no dependen de esto: viven en la capa #bubbles) */
+.slot.speaker{z-index:15}
+.slot[data-slot="rey"]{--fx:50%;--fh:54cqh;--fb:24.5cqh;--fz:6}
+.slot[data-slot="escriba"]{--fx:15%;--fh:47cqh;--fb:8cqh}
+.slot[data-slot="consejero"]{--fx:31%;--fh:47cqh;--fb:8cqh}
+.slot[data-slot="bufon"]{--fx:69%;--fh:47cqh;--fb:8cqh}
+.slot[data-slot="caballero"]{--fx:85%;--fh:47cqh;--fb:8cqh}
+.slot.speaker:after{content:"";position:absolute;left:12%;right:12%;bottom:-1.5cqh;height:2.4cqh;border-radius:50%;background:radial-gradient(ellipse,rgba(251,231,161,.55),transparent 70%)}
+/* globos de la charla: viven en su propia capa (z-index 25), por encima de TODOS los personajes y de las partículas.
+   Cast.say() mide el globo y lo coloca en píxeles junto al hablante, sin tapar caras ni cuerpos ni salirse de la escena. */
+.bubbles{position:absolute;inset:0;pointer-events:none;z-index:25;overflow:hidden}
+.say{position:absolute;left:0;top:0;width:max-content;max-width:240px;padding:.45rem .7rem;border-radius:10px;background:var(--parch);color:var(--ink);font-size:.86rem;line-height:1.25;text-align:center;overflow-wrap:break-word;box-shadow:0 6px 14px rgba(0,0,0,.5);border:1.5px solid #6b4a12;visibility:hidden}
+.say.in{visibility:visible;animation:bubIn .28s ease-out both}
+.say.out{visibility:visible;animation:bubOut .22s ease-in both}
+.say:after{content:"";position:absolute;width:12px;height:12px;background:var(--parch);border:0 solid #6b4a12}
+.say[data-side="top"]:after{left:calc(var(--tail,50%) - 6px);bottom:-7px;border-right-width:1.5px;border-bottom-width:1.5px;transform:rotate(45deg)}
+.say[data-side="right"]:after{left:-7px;top:calc(var(--tail,50%) - 6px);border-left-width:1.5px;border-bottom-width:1.5px;transform:rotate(45deg)}
+.say[data-side="left"]:after{right:-7px;top:calc(var(--tail,50%) - 6px);border-right-width:1.5px;border-top-width:1.5px;transform:rotate(45deg)}
+@keyframes bubIn{from{opacity:0;transform:translateY(6px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes bubOut{to{opacity:0;transform:translateY(-4px)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-6px)}}
+
+/* ═════ PANEL DE ACCIÓN (dock) ═════ */
+.dock{max-width:1000px;margin:0 auto;padding:18px clamp(10px,2.4vw,20px) 44px;scroll-margin-top:var(--bar)}
+.dock:focus{outline:none}
+.panel{animation:panelIn .38s ease-out both}
+@keyframes panelIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.idle-card{display:flex;align-items:center;gap:1rem;justify-content:center;padding:1.4rem;color:var(--muted);text-align:center}
+.parchment{position:relative;color:var(--ink);padding:1.4rem clamp(1rem,3vw,1.9rem) 1.5rem;border:9px solid var(--oak-d);border-image:linear-gradient(#5a3a20,#2a180c) 1;border-radius:2px;
+  background:radial-gradient(circle at 15% 12%,rgba(255,255,255,.4),transparent 26%),radial-gradient(circle at 88% 90%,rgba(120,70,20,.2),transparent 40%),linear-gradient(140deg,#f0e1b8,var(--parch) 45%,var(--parch-2));
+  box-shadow:0 0 0 2px var(--gold-lo),0 18px 36px rgba(0,0,0,.55),inset 0 0 40px rgba(120,80,30,.25)}
+.parch-head{display:flex;gap:.9rem;align-items:flex-start;margin-bottom:1rem}
+.parch-head .ico{width:2rem;height:2rem;color:var(--ruby);margin-top:.15rem}
+.parch-head h2,.modal-head h2{font-family:var(--f-display);font-weight:900;font-size:1.2rem;line-height:1.2;color:var(--ink)}
+.lead{color:var(--ink-soft);font-size:1rem}
+.fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.9rem}
+.field label{display:block;font-family:var(--f-ui);font-weight:700;font-size:.82rem;margin-bottom:.35rem}
+.input-wrap{position:relative}
+.input-wrap input{width:100%;min-height:48px;padding:.5rem 3.1rem .5rem .75rem;font-family:var(--f-ui);font-weight:700;font-size:1.15rem;color:var(--ink);background:rgba(255,255,255,.6);border:2px solid #6b4a2a;border-radius:4px;box-shadow:inset 0 2px 4px rgba(90,60,20,.2)}
+.input-wrap input::placeholder{color:rgba(90,59,32,.4)}
+.input-wrap input:focus-visible{outline:3px solid var(--ruby);outline-offset:1px;background:#fff}
+.input-wrap .max{position:absolute;right:.7rem;top:50%;transform:translateY(-50%);font-family:var(--f-ui);font-size:.75rem;font-weight:700;color:var(--ink-soft);pointer-events:none}
+.hint{font-size:.85rem;color:var(--ink-soft);margin-top:.25rem}
+.err{min-height:0;font-size:.88rem;font-weight:600;color:#8a1a14}
+.field.invalid .input-wrap input{border-color:#a12522;background:#fff1ec}
+.field.invalid .err{margin-top:.2rem}
+.form-error{margin-top:.9rem;padding:.6rem .8rem;border-radius:4px;background:#5c1710;color:#ffe3d6;border:1px solid #8d2d20;font-weight:600}
+.form-error:empty{display:none}
+.form-actions{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:1.15rem;align-items:center}
+.recap{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:.4rem 1.6rem}
+.recap li{display:flex;justify-content:space-between;gap:.8rem;padding:.5rem 0;border-bottom:1px dashed rgba(90,59,32,.45)}
+.recap b{font-family:var(--f-ui)}
+.recap span:first-child{color:var(--ink-soft)}
+
+/* ═════ DIÁLOGO ═════ */
+.dlg{display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:end}
+.dlg-portrait{position:relative;width:clamp(96px,16vw,138px);aspect-ratio:1;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 30%,#5a4632,#231810);border:4px solid var(--gold);box-shadow:0 0 0 3px var(--oak-d),0 10px 24px rgba(0,0,0,.6)}
+.dlg-portrait .char{position:absolute;inset:0}
+.dlg-main{min-width:0}
+.dlg-plate{display:inline-flex;align-items:baseline;gap:.7rem;flex-wrap:wrap;margin:0 0 -1px .9rem;padding:.3rem 1rem;background:linear-gradient(#a87a2a,#6b4a12);border:1.5px solid var(--gold-hi);border-bottom:0;border-radius:6px 6px 0 0;color:#fff5d0;position:relative;z-index:1}
+.dlg-name{font-family:var(--f-ui);font-weight:900;font-size:.95rem}
+.dlg-role{font-size:.85rem;opacity:.85;font-style:italic}
+.dlg-bubble{position:relative;padding:1rem 1.25rem .6rem;background:linear-gradient(#2a1c10,#180f07);border:2.5px solid var(--gold);border-radius:8px;box-shadow:0 12px 26px rgba(0,0,0,.55)}
+.dlg-bubble:before{content:"";position:absolute;left:-11px;bottom:26px;width:18px;height:18px;background:#22160c;border-left:2.5px solid var(--gold);border-bottom:2.5px solid var(--gold);transform:rotate(45deg)}
+.dlg-text{font-size:1.18rem;line-height:1.5;min-height:4.5em;color:var(--text)}
+.dlg-text.typing:after{content:"";display:inline-block;width:2px;height:1.05em;margin-left:3px;background:var(--gold-hi);vertical-align:-.15em;animation:caret .8s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.dlg-foot{display:flex;align-items:center;justify-content:flex-end;gap:.6rem;flex-wrap:wrap;margin-top:.2rem}
+.dlg-count{margin-right:auto;font-family:var(--f-ui);font-size:.78rem;color:var(--muted)}
+
+/* ═════ OPCIONES DE DIÁLOGO (respuestas del aprendiz) ═════ */
+.dlg-choices{display:grid;gap:.5rem;margin:.3rem 0 .9rem;animation:choicesIn .32s ease-out both}
+@keyframes choicesIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.dlg-choice{display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;min-height:44px;padding:.6rem .9rem;border-radius:6px;font-family:var(--f-ui);font-weight:600;font-size:.94rem;line-height:1.3;color:var(--text);
+  background:linear-gradient(#3a2716,#20140a);border:1.5px solid var(--gold-lo);box-shadow:inset 0 1px 0 rgba(255,255,255,.06);transition:background .15s,border-color .15s,transform .15s}
+.dlg-choice:before{content:"⚜";flex:none;color:var(--gold-hi);font-size:.95em}
+.dlg-choice:hover{background:linear-gradient(#4c3420,#2a1a0e);border-color:var(--gold);transform:translateX(3px)}
+.dlg-choice:active{transform:translateX(3px) scale(.99)}
+.dlg-choice:focus-visible{outline:3px solid var(--gold-hi);outline-offset:2px}
+.dlg-reply-cap{margin:0;font-family:var(--f-ui);font-size:.78rem;color:var(--muted)}
+
+/* ═════ VEREDICTO ═════ */
+.verdict{--tc:var(--t3)}
+.verdict[data-tier="0"]{--tc:var(--t0)}.verdict[data-tier="2"]{--tc:var(--t2)}.verdict[data-tier="3"]{--tc:var(--t3)}.verdict[data-tier="4"]{--tc:var(--t4)}.verdict[data-tier="5"]{--tc:var(--t5)}
+.v-status{font-family:var(--f-ui);font-weight:700;font-size:.95rem;color:var(--ink-soft);margin-bottom:.9rem;min-height:1.4em}
+.verdict.pending .v-status:after{content:"";display:inline-block;width:1.2em;text-align:left;animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%,100%{content:"..."}}
+.v-grid{display:grid;grid-template-columns:auto 1fr;gap:1.4rem 2rem;align-items:center}
+.v-score-wrap{display:flex;flex-direction:column;align-items:center;gap:.9rem;min-width:190px}
+.v-score{display:flex;align-items:baseline;gap:.4rem;font-family:var(--f-display);font-weight:900;color:var(--ink)}
+.v-score span{font-size:clamp(3rem,9vw,4.6rem);line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 2px 0 rgba(255,255,255,.4)}
+.v-score small{font-size:1rem;color:var(--ink-soft)}
+.v-seal{width:92px;height:92px;border-radius:50% 46% 52% 48%/48% 52% 46% 50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:2.4rem;color:#fff3d4;text-shadow:0 2px 3px rgba(0,0,0,.5);
+  background:radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--tc) 55%,#fff),var(--tc) 55%,color-mix(in srgb,var(--tc) 55%,#000));box-shadow:0 8px 16px rgba(0,0,0,.45),inset 0 0 0 5px rgba(255,255,255,.14),inset 0 0 0 9px rgba(0,0,0,.14);opacity:0;transform:scale(2.4) rotate(-22deg)}
+.v-seal.stamp{animation:stamp .5s cubic-bezier(.2,1.5,.4,1) forwards}
+@keyframes stamp{0%{opacity:0;transform:scale(2.4) rotate(-22deg)}55%{opacity:1}100%{opacity:1;transform:scale(1) rotate(-8deg)}}
+.v-seal .ico{width:2.6rem;height:2.6rem}
+.v-grade{font-family:var(--f-display);font-weight:900;font-size:clamp(1.5rem,4vw,2rem);color:var(--tc);line-height:1.15}
+.v-grade:focus{outline:none}
+.v-king{margin:.7rem 0 .5rem;padding:.55rem .9rem;border-left:4px solid var(--tc);background:rgba(255,255,255,.3);border-radius:0 4px 4px 0}
+.v-king p{font-size:1.2rem;font-style:italic;color:var(--ink)}
+.v-king cite{display:block;margin-top:.15rem;font-family:var(--f-ui);font-size:.78rem;font-style:normal;color:var(--ink-soft)}
+.v-council{font-size:1.02rem;color:var(--ink)}
+.v-meaning{margin-top:.5rem;font-weight:600;color:var(--ink)}
+.v-next{color:var(--ink-soft);margin-top:.15rem}
+.v-xp{margin-top:.7rem;font-family:var(--f-ui);font-weight:700;font-size:.85rem;color:#5a3d0e}
+.v-xp span{display:inline-block;padding:.25rem .7rem;border-radius:20px;background:rgba(143,100,32,.18);border:1px solid rgba(143,100,32,.6)}
+.verdict.pending .v-text,.verdict.pending .v-actions{visibility:hidden}
+.v-text>*,.v-actions{transition:opacity .5s}
+.verdict.revealing .v-actions{opacity:0;pointer-events:none}
+
+/* ═════ PANTALLA DE TÍTULO / MENÚ ═════ */
+.title-screen{position:fixed;inset:var(--bar) 0 0 0;z-index:60;display:grid;place-items:center;padding:1.2rem;background:radial-gradient(ellipse at 50% 40%,rgba(12,8,4,.55),rgba(6,3,1,.92));backdrop-filter:blur(3px);animation:fadeIn .5s both;overflow-y:auto}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.title-card{text-align:center;width:min(460px,100%);text-align:center;padding:1.7rem 1.4rem 1.3rem;border-radius:8px;background:linear-gradient(#2a1a0e,#160d06);border:2px solid var(--gold-lo);box-shadow:0 0 0 5px var(--oak-d),0 0 0 6px var(--gold-lo),0 26px 60px rgba(0,0,0,.7),inset 0 1px 0 rgba(251,231,161,.25)}
+.title-crest{width:74px;height:82px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));animation:crestIn .8s cubic-bezier(.2,1.2,.4,1) both}
+@keyframes crestIn{from{opacity:0;transform:translateY(-14px) scale(.85)}to{opacity:1;transform:none}}
+.title-card h1{font-family:var(--f-display);font-weight:900;font-size:clamp(1.7rem,6vw,2.3rem);color:var(--gold-hi);margin:.3rem 0 .1rem;text-shadow:0 0 22px rgba(226,182,83,.4),0 3px 0 #000;line-height:1.1}
+.title-sub{font-family:var(--f-ui);font-size:.8rem;color:var(--muted);margin-bottom:1.3rem}
+.title-menu{list-style:none;margin:0;padding:0;display:grid;gap:.55rem;text-align:left}
+.menu-item{text-align:left;display:flex;align-items:center;gap:.9rem;width:100%;min-height:58px;padding:.55rem .95rem;border-radius:6px;background:linear-gradient(#3d2a1a,#28190d);border:1.5px solid rgba(226,182,83,.4);transition:transform .15s,border-color .15s,background .15s}
+.menu-item:hover{border-color:var(--gold-hi);background:linear-gradient(#4d3520,#33210f);transform:translateX(3px)}
+.menu-item .ico{width:1.7rem;height:1.7rem;color:var(--gold)}
+.mi-text{display:flex;flex-direction:column;line-height:1.2}
+.mi-text b{font-family:var(--f-ui);font-size:1rem;color:var(--gold-hi)}
+.mi-text small{font-size:.9rem;color:var(--muted)}
+.menu-item.primary{min-height:68px;color:#2a1503;background:linear-gradient(#fbe7a1,#dcae49 55%,#a87a2a);border:1.5px solid #6b4a12;box-shadow:0 4px 0 #5a3d0e,0 12px 24px rgba(0,0,0,.4);margin-bottom:.35rem}
+.menu-item.primary .ico{color:#5a1c14;width:2rem;height:2rem}
+.menu-item.primary b{color:#2a1503;font-size:1.1rem}.menu-item.primary small{color:#5a3d0e}
+.menu-item.primary:hover{transform:translateY(-2px);filter:brightness(1.06)}
+.title-foot{margin-top:1.1rem;font-family:var(--f-ui);font-size:.78rem;color:var(--muted)}
+
+/* ═════ VENTANAS ═════ */
+.modal-layer{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:14px;background:rgba(6,3,1,.8);backdrop-filter:blur(2px);animation:fadeIn .25s both}
+.modal{width:min(660px,100%);max-height:min(88vh,860px);max-height:min(88dvh,860px);display:flex;flex-direction:column;color:var(--ink);border-radius:4px;background:linear-gradient(150deg,#f0e1b8,var(--parch) 50%,var(--parch-2));border:8px solid var(--oak-d);box-shadow:0 0 0 2px var(--gold-lo),0 28px 70px rgba(0,0,0,.7);animation:modalIn .3s ease-out both}
+.modal.small{width:min(440px,100%)}
+@keyframes modalIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.modal:focus{outline:none}
+.modal-head{display:flex;align-items:center;gap:.7rem;padding:.9rem 1.1rem;border-bottom:2px solid rgba(90,59,32,.4);background:rgba(255,255,255,.18)}
+.modal-head .ico{width:1.7rem;height:1.7rem;color:var(--ruby)}
+.modal-head h2{flex:1;font-size:1.15rem}
+.modal-x{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;color:var(--ink);background:rgba(255,255,255,.3);border:1.5px solid rgba(90,59,32,.6)}
+.modal-x:hover{background:rgba(255,255,255,.6)}
+.modal-body{padding:1.1rem 1.2rem;overflow:auto;flex:1}
+.modal-body>.lead{margin-bottom:.9rem}
+.modal-foot{display:flex;gap:.7rem;justify-content:flex-end;flex-wrap:wrap;padding:.8rem 1.1rem;border-top:2px solid rgba(90,59,32,.4);background:rgba(255,255,255,.18)}
+.modal-foot .btn-danger{margin-right:auto}
+.empty{display:grid;justify-items:center;gap:.6rem;text-align:center;padding:1.6rem 1rem;color:var(--ink-soft)}
+.empty .ico{color:rgba(90,59,32,.55)}
+.chron-list{list-style:none;margin:0;padding:0;display:grid;gap:.6rem}
+.chron-item{display:grid;grid-template-columns:auto 1fr;gap:.9rem;align-items:center;padding:.65rem .8rem;border-radius:4px;background:rgba(255,255,255,.32);border:1px solid rgba(90,59,32,.35)}
+.chron-seal{--tc:var(--t3);display:grid;place-items:center;width:46px;height:46px;border-radius:50%;font-family:var(--f-display);font-weight:900;font-size:1.25rem;color:#fff3d4;background:radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--tc) 60%,#fff),var(--tc) 60%,color-mix(in srgb,var(--tc) 55%,#000));box-shadow:0 3px 6px rgba(0,0,0,.35)}
+.chron-seal[data-tier="0"]{--tc:var(--t0)}.chron-seal[data-tier="2"]{--tc:var(--t2)}.chron-seal[data-tier="4"]{--tc:var(--t4)}.chron-seal[data-tier="5"]{--tc:var(--t5)}
+.chron-seal .ico{width:1.5rem;height:1.5rem}
+.chron-top{display:flex;justify-content:space-between;gap:.6rem;flex-wrap:wrap;font-family:var(--f-ui);font-weight:700;font-size:.92rem}
+.chron-meta{font-size:.9rem;color:var(--ink-soft)}
+.chron-com{font-size:.95rem;font-style:italic}
+.roster{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem}
+.roster-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:.7rem .6rem .9rem;border-radius:4px;background:rgba(255,255,255,.3);border:1px solid rgba(90,59,32,.4)}
+.roster-card .portrait-frame{position:relative;width:104px;aspect-ratio:1;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 30%,#6a5238,#2a1c10);border:3px solid var(--gold-lo);margin-bottom:.5rem}
+.roster-card .portrait-frame .char{position:absolute;inset:0}
+.roster-card h3{font-family:var(--f-ui);font-weight:900;font-size:.95rem}
+.roster-card .role{font-family:var(--f-ui);font-size:.75rem;font-weight:700;color:var(--ruby);margin:.1rem 0 .35rem}
+.roster-card p{font-size:.95rem;line-height:1.3}
+.settings .set-group{border:0;border-top:2px solid rgba(90,59,32,.3);margin:0 0 .3rem;padding:.6rem 0 .5rem;min-width:0}
+.settings .set-group:first-child{border-top:0}
+.set-group legend{font-family:var(--f-display);font-weight:900;font-size:1rem;padding:0 .5rem 0 0;color:var(--ink)}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:46px}
+.set-row.col{flex-direction:column;align-items:stretch;gap:.4rem;padding:.3rem 0 .5rem}
+.set-row label,.set-row>span{font-size:1.02rem}
+.set-row input[type=range]{flex:1;max-width:220px;margin-left:auto}
+.set-row output{min-width:3.2em;text-align:right;font-family:var(--f-ui);font-weight:700;font-size:.85rem}
+.note{padding:.5rem .7rem;border-radius:4px;background:rgba(161,37,34,.12);border:1px solid rgba(161,37,34,.4);margin-bottom:.5rem;font-size:.95rem}
+.switch{position:relative;width:54px;height:30px;flex:none;border-radius:16px;background:#8b7a5c;border:2px solid #5a3b20;transition:background .2s}
+.switch:before{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff5d0;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:transform .2s}
+.switch[aria-checked="true"]{background:#3f7d3a}.switch[aria-checked="true"]:before{transform:translateX(24px)}
+input[type=range]{-webkit-appearance:none;appearance:none;height:26px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--gold-lo),var(--gold));border:1px solid rgba(0,0,0,.4)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--gold-lo),var(--gold));border:1px solid rgba(0,0,0,.4)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff5d0,#c99a3c);border:2px solid #5a3d0e}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff5d0,#c99a3c);border:2px solid #5a3d0e}
+.seg{display:flex;border:1.5px solid #5a3b20;border-radius:5px;overflow:hidden}
+.seg button{flex:1;min-height:42px;padding:.3rem .6rem;font-family:var(--f-ui);font-weight:600;font-size:.82rem;color:var(--ink);background:rgba(255,255,255,.25);border-right:1px solid rgba(90,59,32,.45)}
+.seg button:last-child{border-right:0}
+.seg button[aria-checked="true"]{background:linear-gradient(#a87a2a,#6b4a12);color:#fff5d0}
+.help h3{font-family:var(--f-display);font-weight:900;font-size:1rem;margin:1rem 0 .4rem}.help h3:first-child{margin-top:0}
+.help p,.help li{font-size:1.02rem}
+.steps{margin:0;padding-left:1.3rem}.steps li{margin-bottom:.25rem}
+.scale{width:100%;border-collapse:collapse;margin:.6rem 0;font-family:var(--f-ui);font-size:.9rem}
+.scale th,.scale td{padding:.4rem .7rem;text-align:left;border-bottom:1px solid rgba(90,59,32,.4)}
+.scale th{background:rgba(90,59,32,.16)}
+.keys{margin:0;padding-left:1.2rem}
+kbd{font-family:var(--f-ui);font-size:.8rem;padding:.05rem .4rem;border-radius:3px;background:#fff8e6;border:1px solid #6b4a2a;box-shadow:0 1px 0 #6b4a2a}
+
+/* ═════ REPRODUCTOR ═════ */
+.music-panel{position:fixed;z-index:250;top:calc(var(--bar) + 8px);right:clamp(8px,2vw,22px);width:min(320px,calc(100vw - 16px));padding:1rem;border-radius:8px;background:linear-gradient(#2a1c10,#150c06);border:2px solid var(--gold-lo);box-shadow:0 20px 44px rgba(0,0,0,.7);animation:panelIn .25s both}
+.mp-head{display:flex;justify-content:space-between;align-items:center;gap:.6rem}
+.mp-title{display:flex;flex-direction:column;min-width:0}
+.mp-track{font-family:var(--f-ui);font-weight:700;font-size:.98rem;color:var(--gold-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-status{font-size:.88rem;color:var(--muted)}
+.mp-eq{display:flex;gap:3px;align-items:flex-end;height:22px}.mp-eq i{width:4px}
+.mp-progress{height:5px;margin:.7rem 0;border-radius:3px;background:#3a2a1a;overflow:hidden}
+.mp-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi))}
+.mp-transport{display:flex;justify-content:center;align-items:center;gap:.7rem;margin-bottom:.6rem}
+.mp-row{display:flex;align-items:center;gap:.7rem;min-height:38px;font-size:.95rem;color:var(--text)}
+.mp-row label{width:4.6em;font-family:var(--f-ui);font-size:.78rem}.mp-row input{flex:1}
+.mp-row.check{justify-content:space-between}
+.mp-row .switch{background:#5c4a30;border-color:#8f6420}.mp-row .switch[aria-checked="true"]{background:#3f7d3a}
+.toasts{position:fixed;z-index:500;left:50%;bottom:16px;transform:translateX(-50%);display:grid;gap:8px;width:min(440px,calc(100vw - 20px));pointer-events:none}
+.toast{padding:.7rem 1rem;border-radius:6px;background:#22160c;color:var(--text);border:1.5px solid var(--gold);box-shadow:0 10px 24px rgba(0,0,0,.6);font-size:1rem;animation:panelIn .3s both}
+.toast.warn{border-color:#c9503a}
+.toast.out{animation:toastOut .3s both}
+
+/* ═════ RESPONSIVE ═════ */
+@media(max-width:1000px){
+  .fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brand-sub{display:none}
+}
+@media(max-width:900px){
+  .nav{position:absolute;top:100%;left:0;right:0;flex-direction:column;gap:0;margin:0;padding:.4rem clamp(10px,2vw,22px) .8rem;background:linear-gradient(#1c1109,#120a05);border-bottom:2px solid var(--gold-lo);box-shadow:0 14px 26px rgba(0,0,0,.6);display:none}
+  .nav.open{display:flex}
+  .nav-btn{padding:0 10px;font-size:.95rem;min-height:48px}
+  .nav-btn[aria-current="page"]:after{left:10px;right:auto;width:36px}
+  .menu-toggle{display:inline-grid}
+  .top-tools{margin-left:auto}
+  .rank-info{min-width:0}.rank-title{display:none}
+  .dlg-bubble:before{display:none}
+}
+@media(max-width:700px){
+  :root{--bar:58px}
+  .scene{width:100%;min-width:0;aspect-ratio:auto;height:min(56vh,390px);height:min(56svh,390px)}
+  .slot[data-slot="rey"]{--fx:50%;--fh:64cqh;--fb:24cqh}
+  .slot[data-slot="escriba"],.slot[data-slot="bufon"]{--fx:19%;--fh:54cqh;--fb:7cqh}
+  .slot[data-slot="consejero"],.slot[data-slot="caballero"]{--fx:81%;--fh:54cqh;--fb:7cqh}
+  .say{font-size:.8rem}
+  .v-grid{grid-template-columns:1fr}.v-score-wrap{flex-direction:row;justify-content:center;gap:1.4rem}
+  .recap{grid-template-columns:1fr}
+  .dlg{grid-template-columns:1fr;gap:.6rem}.dlg-portrait{width:84px;margin-bottom:-.9rem;z-index:2}
+  .dlg-plate{margin-left:5.6rem}
+  .dlg-text{font-size:1.1rem;min-height:5.2em}
+  .roster{grid-template-columns:1fr}
+  .rank{padding-right:5px}
+  .form-actions .btn{flex:1 1 100%}
+}
+@media(max-width:400px){.fields{gap:.6rem}.input-wrap input{font-size:1rem;padding-right:2.6rem}.brand-name{font-size:.88rem}}
+@media(max-height:520px) and (orientation:landscape){
+  .scene{width:min(100%,calc(58vh*1.875))}
+  .title-card{padding:1rem}.title-crest{display:none}
+}
+
+/* ═════ MOVIMIENTO ═════ */
+html[data-anim="reduced"] .mote,html[data-anim="reduced"] .torch-g .glow,html[data-anim="reduced"] .eq i,html[data-anim="reduced"] .mp-eq i{animation:none}
+html[data-anim="off"] *,html[data-anim="off"] *:before,html[data-anim="off"] *:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+@media (prefers-reduced-motion:reduce){
+  .mote,.torch-g .glow,.torch-g .flame{animation:none}
+  .panel,.modal,.title-screen,.toast{animation-duration:.01ms}
+}
+
+body[data-state="menu"]{overflow:hidden}
+.v-grade{color:color-mix(in srgb,var(--tc) 78%,#000)}
+@media(max-height:520px) and (orientation:landscape){.fields{grid-template-columns:repeat(4,minmax(0,1fr))}.hint{display:none}.parch-head{margin-bottom:.6rem}}
+
+</style>
+</head>
+<body data-state="menu">
+<a class="skip-link" href="#dock">Saltar al contenido</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="M3.5 18.5h17M4.5 17l-1.6-9 5 3.8L12 5l4.1 6.8 5-3.8-1.6 9z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-scroll" viewBox="0 0 24 24"><path d="M8 4h10a2 2 0 0 1 2 2v1.5a1.5 1.5 0 0 1-1.5 1.5H17M8 4a2.5 2.5 0 0 0-2.5 2.5V17A3 3 0 0 0 8.5 20H17a2 2 0 0 0 2-2V9M9.5 9.5h5.5M9.5 13h5.5M9.5 16.5h3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-people" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.4 2.7-6 6-6s6 2.6 6 6"/><circle cx="17.2" cy="9" r="2.4"/><path d="M16.4 14.3c3 .2 4.9 2.4 4.9 5.7"/></g></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1"/><circle cx="12" cy="12" r="7.2" stroke-dasharray="2 3.2"/></g></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.5A2 2 0 0 1 6.5 3.5H19v14.5H6.5a2 2 0 0 0-2 2z"/><path d="M4.5 19.5V5.5"/><path d="M9.6 8.6a2.4 2.4 0 1 1 3.5 2.1c-.8.4-1.1.9-1.1 1.7M12 15.2h.01"/></g></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6.2l10-2V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></g></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z" fill="currentColor"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M5 5l10 7-10 7zM17 5h2.4v14H17z" fill="currentColor"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M19 5L9 12l10 7zM7 5H4.6v14H7z" fill="currentColor"/></symbol>
+    <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9.5v5h3.8l5 3.8V5.7l-5 3.8z" fill="currentColor"/><path d="M16.2 8.8a4.6 4.6 0 0 1 0 6.4M18.6 6.3a8.2 8.2 0 0 1 0 11.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.8l5 3.8V5.7l-5 3.8z" fill="currentColor"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M5.5 5.5l13 13M18.5 5.5l-13 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-quill" viewBox="0 0 24 24"><path d="M20.5 3.5C13 4 7.5 8.5 6 16l-2.5 4.5M6 16c3.5 1 7.5-.5 10-4M9 13.5c2-.3 4-1.4 5.5-3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.5l9.5 16.5h-19zM12 10v5M12 17.6h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cracked" viewBox="0 0 48 48"><path d="M24 4l16 6v12c0 11-7 18-16 22C15 40 8 33 8 22V10z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M24 5l-4 12 7 6-6 9 3 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <linearGradient id="crestGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe7a1"/><stop offset=".55" stop-color="#d9a941"/><stop offset="1" stop-color="#8f6420"/></linearGradient>
+    <symbol id="crest" viewBox="0 0 64 72">
+      <path d="M32 8L56 17v20c0 15-10 25-24 31C18 62 8 52 8 37V17z" fill="#4b1f6f" stroke="url(#crestGold)" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M32 8L56 17v20c0 15-10 25-24 31z" fill="#000" opacity=".22"/>
+      <path d="M32 22v30M21 33h22" stroke="url(#crestGold)" stroke-width="4.5" stroke-linecap="round"/>
+      <path d="M17 12l4-9 7 6 4-8 4 8 7-6 4 9z" fill="url(#crestGold)" stroke="#6b4a12" stroke-width="1.2" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="topbar" id="topbar">
+  <button type="button" class="brand" id="brandBtn" aria-label="Reino de Aldemar. Volver al menú principal">
+    <svg class="crest" aria-hidden="true"><use href="#crest"/></svg>
+    <span class="brand-text"><span class="brand-name">Reino de Aldemar</span><span class="brand-sub">Crónicas del Reino</span></span>
+  </button>
+
+  <nav class="nav" id="mainNav" aria-label="Secciones del reino">
+    <button type="button" class="nav-btn" data-nav="hall"><svg class="ico" aria-hidden="true"><use href="#i-crown"/></svg><span>Salón del Trono</span></button>
+    <button type="button" class="nav-btn" data-nav="cronica"><svg class="ico" aria-hidden="true"><use href="#i-scroll"/></svg><span>Crónica</span></button>
+    <button type="button" class="nav-btn" data-nav="personajes"><svg class="ico" aria-hidden="true"><use href="#i-people"/></svg><span>Personajes</span></button>
+    <button type="button" class="nav-btn" data-nav="ajustes"><svg class="ico" aria-hidden="true"><use href="#i-gear"/></svg><span>Ajustes</span></button>
+    <button type="button" class="nav-btn" data-nav="ayuda"><svg class="ico" aria-hidden="true"><use href="#i-help"/></svg><span>Ayuda</span></button>
+  </nav>
+
+  <div class="top-tools">
+    <div class="rank" role="group" aria-label="Progreso del aprendiz">
+      <span class="rank-lvl" title="Nivel"><span class="sr-only">Nivel </span><b id="lvlNum">1</b></span>
+      <span class="rank-info">
+        <span class="rank-title" id="rankTitle">Aprendiz del Reino</span>
+        <span class="xpbar" id="xpBar" role="progressbar" aria-label="Experiencia hasta el siguiente nivel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="xpfill" id="xpFill"></span></span>
+      </span>
+    </div>
+    <button type="button" class="icon-btn" id="musicBtn" aria-expanded="false" aria-controls="musicPanel" aria-label="Reproductor de música">
+      <svg class="ico" aria-hidden="true"><use href="#i-note"/></svg><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span>
+    </button>
+    <button type="button" class="icon-btn menu-toggle" id="menuBtn" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú de secciones">
+      <svg class="ico" aria-hidden="true"><use href="#i-menu"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="stage" id="stage">
+  <section class="scene" id="scene" aria-label="Salón del Trono">
+    <svg class="hall-bg" viewBox="0 0 1200 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="wallG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17110c"/><stop offset=".45" stop-color="#3a2e21"/><stop offset="1" stop-color="#2a2117"/></linearGradient>
+        <pattern id="blocks" width="150" height="64" patternUnits="userSpaceOnUse"><path d="M0 1H150M0 33H150M1 1V33M76 33V65" stroke="#000" stroke-opacity=".34" stroke-width="2" fill="none"/><path d="M0 3H150M0 35H150" stroke="#fff" stroke-opacity=".05" stroke-width="1.5" fill="none"/></pattern>
+        <linearGradient id="floorG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a2c1e"/><stop offset="1" stop-color="#0f0a06"/></linearGradient>
+        <linearGradient id="carpetG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d1c20"/><stop offset="1" stop-color="#a5292d"/></linearGradient>
+        <linearGradient id="colG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#17120d"/><stop offset=".38" stop-color="#4c4033"/><stop offset=".56" stop-color="#6e604e"/><stop offset="1" stop-color="#1c160f"/></linearGradient>
+        <linearGradient id="goldH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe7a1"/><stop offset=".5" stop-color="#d9a941"/><stop offset="1" stop-color="#8f6420"/></linearGradient>
+        <linearGradient id="tapG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f1c66"/><stop offset="1" stop-color="#1c0d33"/></linearGradient>
+        <linearGradient id="banG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9a2226"/><stop offset="1" stop-color="#5e1215"/></linearGradient>
+        <linearGradient id="woodG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1a0f08"/><stop offset=".5" stop-color="#3d2415"/><stop offset="1" stop-color="#1a0f08"/></linearGradient>
+        <linearGradient id="rayG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="ray-stop" stop-opacity=".34"/><stop offset="1" class="ray-stop" stop-opacity="0"/></linearGradient>
+        <radialGradient id="glowG"><stop offset="0" stop-color="#ffb552" stop-opacity=".55"/><stop offset=".5" stop-color="#ff8a2a" stop-opacity=".18"/><stop offset="1" stop-color="#ff8a2a" stop-opacity="0"/></radialGradient>
+        <radialGradient id="flameG" cx=".5" cy=".75" r=".6"><stop offset="0" stop-color="#fff6c8"/><stop offset=".4" stop-color="#ffb347"/><stop offset=".8" stop-color="#e5601f"/><stop offset="1" stop-color="#e5601f" stop-opacity="0"/></radialGradient>
+        <clipPath id="winClip"><path d="M-40 110V-40Q-40-70 0-70Q40-70 40-40V110Z"/></clipPath>
+        <g id="torch">
+          <ellipse class="glow" cx="0" cy="-36" rx="130" ry="130" fill="url(#glowG)"/>
+          <path d="M-5 -6L5 -6L4 44L-4 44Z" fill="#3d2415" stroke="#1a0f08" stroke-width="1.4"/>
+          <path d="M-14 -8Q0 8 14 -8L10 -18L-10 -18Z" fill="#5a5147" stroke="#1a1510" stroke-width="1.4"/>
+          <path class="flame" d="M0 -60C10 -48 14 -38 8 -26C5 -20-5 -20-8 -26C-14 -38-8 -50 0 -60Z" fill="url(#flameG)"/>
+          <path class="flame f2" d="M0 -46C5 -40 6 -33 3 -28C1 -25-1 -25-3 -28C-6 -33-4 -40 0 -46Z" fill="#fff3c0" opacity=".85"/>
+        </g>
+      </defs>
+      <rect width="1200" height="640" fill="url(#wallG)"/>
+      <rect width="1200" height="470" fill="url(#blocks)"/>
+      <!-- alcoba del trono -->
+      <path d="M410 472V196Q410 60 600 60Q790 60 790 196V472Z" fill="url(#tapG)" stroke="#7a5416" stroke-width="5"/>
+      <path d="M430 472V200Q430 82 600 82Q770 82 770 200V472Z" fill="none" stroke="#d9a941" stroke-opacity=".5" stroke-width="2"/>
+      <g opacity=".5" stroke="#d9a941" stroke-width="1.6" fill="none"><path d="M470 120v352M530 96v376M600 90v382M670 96v376M730 120v352"/></g>
+      <g transform="translate(600,190)" opacity=".9"><path d="M0-42L32-30v30Q32 28 0 42Q-32 28-32 0V-30Z" fill="none" stroke="url(#goldH)" stroke-width="3.5"/><path d="M0-22V22M-14-2H14" stroke="url(#goldH)" stroke-width="4" stroke-linecap="round"/></g>
+      <!-- ventanas -->
+      <g transform="translate(225,190)">
+        <path d="M-46 150V-30Q-46-80 0-80Q46-80 46-30V150Z" fill="#0c0805" stroke="#6d4f1e" stroke-width="7"/>
+        <g clip-path="url(#winClip)" transform="translate(0,-10) scale(1.1)"><rect x="-44" y="-80" width="88" height="200" class="sky"/><circle cx="14" cy="-30" r="12" class="sun"/><path d="M-44 60Q-15 40 10 58T44 52V130H-44Z" fill="#1c3b52" opacity=".75"/><path d="M-44 84Q-10 64 20 82T44 78V130H-44Z" fill="#16351d" opacity=".9"/></g>
+        <path d="M0-80V150M-46 40H46" stroke="#3a2413" stroke-width="4"/>
+        <path d="M-46 150V-30Q-46-80 0-80Q46-80 46-30V150Z" fill="none" stroke="#a9782f" stroke-width="2.2" opacity=".7"/>
+        <path d="M-62 158H62" stroke="#6d4f1e" stroke-width="10" stroke-linecap="round"/>
+      </g>
+      <g transform="translate(975,190)">
+        <path d="M-46 150V-30Q-46-80 0-80Q46-80 46-30V150Z" fill="#0c0805" stroke="#6d4f1e" stroke-width="7"/>
+        <g clip-path="url(#winClip)" transform="translate(0,-10) scale(1.1)"><rect x="-44" y="-80" width="88" height="200" class="sky"/><circle cx="-14" cy="-24" r="10" class="sun" opacity=".85"/><path d="M-44 66Q-10 44 20 62T44 56V130H-44Z" fill="#1c3b52" opacity=".75"/><path d="M-44 88Q-10 68 20 86T44 82V130H-44Z" fill="#16351d" opacity=".9"/></g>
+        <path d="M0-80V150M-46 40H46" stroke="#3a2413" stroke-width="4"/>
+        <path d="M-46 150V-30Q-46-80 0-80Q46-80 46-30V150Z" fill="none" stroke="#a9782f" stroke-width="2.2" opacity=".7"/>
+        <path d="M-62 158H62" stroke="#6d4f1e" stroke-width="10" stroke-linecap="round"/>
+      </g>
+      <!-- haces de luz -->
+      <g class="rays"><path d="M180 330H270L610 640H330Z" fill="url(#rayG)"/><path d="M930 330H1020L870 640H590Z" fill="url(#rayG)" opacity=".8"/></g>
+      <!-- columnas -->
+      <g id="columns">
+        <g transform="translate(110,0)"><rect x="-32" y="0" width="64" height="472" fill="url(#colG)"/><rect x="-44" y="0" width="88" height="34" rx="3" fill="#5a4e40" stroke="#1a1510" stroke-width="2"/><rect x="-38" y="34" width="76" height="12" fill="#3f352a"/><rect x="-42" y="438" width="84" height="34" rx="3" fill="#5a4e40" stroke="#1a1510" stroke-width="2"/><path d="M-12 46V438M12 46V438" stroke="#000" stroke-opacity=".18" stroke-width="3"/></g>
+        <g transform="translate(330,0)"><rect x="-32" y="0" width="64" height="472" fill="url(#colG)"/><rect x="-44" y="0" width="88" height="34" rx="3" fill="#5a4e40" stroke="#1a1510" stroke-width="2"/><rect x="-38" y="34" width="76" height="12" fill="#3f352a"/><rect x="-42" y="438" width="84" height="34" rx="3" fill="#5a4e40" stroke="#1a1510" stroke-width="2"/><path d="M-12 46V438M12 46V438" stroke="#000" stroke-opacity=".18" stroke-width="3"/></g>
+        <g transform="translate(870,0)"><rect x="-32" y="0" width="64" height="472" fill="url(#colG)"/><rect x="-44" y="0" width="88" height="34" rx="3" fill="#5a4e40" stroke="#1a1510" stroke-width="2"/><rect x="-38" y="34" width="76" height="12" fill="#3f352a"/><rect x="-42" y="438" width="84" height="34" rx="3" fill="#5a4e40" stroke="#1a1510" stroke-width="2"/><path d="M-12 46V438M12 46V438" stroke="#000" stroke-opacity=".18" stroke-width="3"/></g>
+        <g transform="translate(1090,0)"><rect x="-32" y="0" width="64" height="472" fill="url(#colG)"/><rect x="-44" y="0" width="88" height="34" rx="3" fill="#5a4e40" stroke="#1a1510" stroke-width="2"/><rect x="-38" y="34" width="76" height="12" fill="#3f352a"/><rect x="-42" y="438" width="84" height="34" rx="3" fill="#5a4e40" stroke="#1a1510" stroke-width="2"/><path d="M-12 46V438M12 46V438" stroke="#000" stroke-opacity=".18" stroke-width="3"/></g>
+      </g>
+      <!-- estandartes -->
+      <g transform="translate(464,34)"><path d="M-36 0H36V210L0 250L-36 210Z" fill="url(#banG)" stroke="#d9a941" stroke-width="3"/><path d="M-30 6H30" stroke="#d9a941" stroke-width="2" opacity=".6"/><g transform="translate(0,100)"><path d="M0-30L22-20v22Q22 22 0 32Q-22 22-22 2v-22Z" fill="#f0cf77" stroke="#3a1a0a" stroke-width="2"/><path d="M0-14V16M-9 0H9" stroke="#4b1f6f" stroke-width="3.5" stroke-linecap="round"/></g></g>
+      <g transform="translate(736,34)"><path d="M-36 0H36V210L0 250L-36 210Z" fill="url(#banG)" stroke="#d9a941" stroke-width="3"/><path d="M-30 6H30" stroke="#d9a941" stroke-width="2" opacity=".6"/><g transform="translate(0,100)"><path d="M0-30L22-20v22Q22 22 0 32Q-22 22-22 2v-22Z" fill="#f0cf77" stroke="#3a1a0a" stroke-width="2"/><path d="M0-14V16M-9 0H9" stroke="#4b1f6f" stroke-width="3.5" stroke-linecap="round"/></g></g>
+      <!-- suelo -->
+      <rect y="470" width="1200" height="170" fill="url(#floorG)"/>
+      <g stroke="#000" stroke-opacity=".38" stroke-width="2" fill="none">
+        <path d="M-600 640L600 300M-450 640L600 300M-300 640L600 300M-150 640L600 300M0 640L600 300M150 640L600 300M300 640L600 300M450 640L600 300M600 640V300M750 640L600 300M900 640L600 300M1050 640L600 300M1200 640L600 300M1350 640L600 300M1500 640L600 300M1650 640L600 300M1800 640L600 300"/>
+        <path d="M0 480H1200M0 494H1200M0 516H1200M0 552H1200M0 604H1200" stroke-opacity=".3"/>
+      </g>
+      <!-- tarima -->
+      <path d="M452 452H748L764 472H436Z" fill="#6b5c4a" stroke="#1a1510" stroke-width="2"/><path d="M436 472H764V486H436Z" fill="#3f352a" stroke="#1a1510" stroke-width="2"/>
+      <path d="M418 486H782L800 506H400Z" fill="#7a6a56" stroke="#1a1510" stroke-width="2"/><path d="M400 506H800V522H400Z" fill="#3f352a" stroke="#1a1510" stroke-width="2"/>
+      <!-- alfombra -->
+      <path d="M528 452H672L830 640H370Z" fill="url(#carpetG)"/>
+      <path d="M528 452H672L830 640H370Z" fill="none" stroke="url(#goldH)" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M540 456H660L800 640H400Z" fill="none" stroke="#f0cf77" stroke-opacity=".45" stroke-width="2" stroke-dasharray="10 8"/>
+      <!-- trono -->
+      <g id="throne">
+        <path d="M470 470V140Q470 62 530 44H670Q730 62 730 140V470Z" fill="url(#woodG)" stroke="#0f0a06" stroke-width="4"/>
+        <path d="M486 470V146Q486 78 536 62H664Q714 78 714 146V470Z" fill="none" stroke="url(#goldH)" stroke-width="4"/>
+        <path d="M510 470V160Q510 100 552 88H648Q690 100 690 160V470Z" fill="#4b1f6f" opacity=".85"/>
+        <path d="M510 470V160Q510 100 552 88H648Q690 100 690 160V470Z" fill="none" stroke="#d9a941" stroke-opacity=".5" stroke-width="2"/>
+        <path d="M600 38L612 62H588Z" fill="url(#goldH)" stroke="#6b4a12" stroke-width="1.5"/><circle cx="600" cy="34" r="9" fill="url(#goldH)" stroke="#6b4a12" stroke-width="2"/><circle cx="600" cy="34" r="4" fill="#a12522"/>
+        <path d="M470 330H520V470H470ZM680 330H730V470H680Z" fill="#2a170d" stroke="#0f0a06" stroke-width="3"/>
+        <path d="M470 330H520M680 330H730" stroke="url(#goldH)" stroke-width="6"/>
+      </g>
+      <!-- antorchas -->
+      <g transform="translate(330,318)" class="torch-g"><use href="#torch"/></g>
+      <g transform="translate(870,318)" class="torch-g t2"><use href="#torch"/></g>
+    </svg>
+    <div class="hall-tint" aria-hidden="true"></div>
+    <div class="dust" id="dust" aria-hidden="true"></div>
+    <div class="court" id="court" aria-hidden="true"></div>
+    <canvas id="fx" aria-hidden="true"></canvas>
+    <div class="flash" id="flash" aria-hidden="true"></div>
+    <div class="bubbles" id="bubbles" aria-hidden="true"></div>
+  </section>
+
+  <section class="dock" id="dock" aria-label="Panel de acción" tabindex="-1">
+    <div class="dock-inner">
+
+      <div class="panel" data-panel="idle">
+        <div class="idle-card"><svg class="ico big" aria-hidden="true"><use href="#i-crown"/></svg><p>El salón aguarda. Elige «Comenzar» en el menú principal para presentar tus notas.</p></div>
+      </div>
+
+      <div class="panel dlg" data-panel="dialogue" hidden>
+        <div class="dlg-portrait" id="dlgPortrait" aria-hidden="true"></div>
+        <div class="dlg-main">
+          <div class="dlg-plate"><span class="dlg-name" id="dlgName"></span><span class="dlg-role" id="dlgRole"></span></div>
+          <div class="dlg-bubble">
+            <p class="dlg-text" id="dlgText" aria-hidden="true"></p>
+            <div class="dlg-choices" id="dlgChoices" role="group" aria-label="Elige tu respuesta" hidden></div>
+            <div class="dlg-foot" id="dlgFoot">
+              <span class="dlg-count" id="dlgCount" aria-hidden="true"></span>
+              <button type="button" class="link-btn" id="dlgSkipAll">Omitir diálogo</button>
+              <button type="button" class="btn btn-gold" id="dlgNext">Continuar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" data-panel="form" hidden>
+        <div class="parchment">
+          <header class="parch-head">
+            <svg class="ico" aria-hidden="true"><use href="#i-quill"/></svg>
+            <div>
+              <h2 id="formTitle">El Gran Libro de las Calificaciones</h2>
+              <p class="lead">Anota tus puntos y entrégalos al Consejo. Con 60 de 100 o más apruebas.</p>
+            </div>
+          </header>
+          <form id="gradeForm" novalidate aria-labelledby="formTitle">
+            <div class="fields">
+              <div class="field" data-key="tareas">
+                <label for="tareas">Trabajos y tareas</label>
+                <div class="input-wrap"><input id="tareas" name="tareas" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-describedby="tareas-hint tareas-err" maxlength="7"><span class="max" aria-hidden="true">/ 80</span></div>
+                <div class="hint" id="tareas-hint">Máximo 80 puntos</div>
+                <div class="err" id="tareas-err"></div>
+              </div>
+              <div class="field" data-key="parcial1">
+                <label for="parcial1">Primer parcial</label>
+                <div class="input-wrap"><input id="parcial1" name="parcial1" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-describedby="parcial1-hint parcial1-err" maxlength="7"><span class="max" aria-hidden="true">/ 30</span></div>
+                <div class="hint" id="parcial1-hint">Máximo 30 puntos</div>
+                <div class="err" id="parcial1-err"></div>
+              </div>
+              <div class="field" data-key="parcial2">
+                <label for="parcial2">Segundo parcial</label>
+                <div class="input-wrap"><input id="parcial2" name="parcial2" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-describedby="parcial2-hint parcial2-err" maxlength="7"><span class="max" aria-hidden="true">/ 30</span></div>
+                <div class="hint" id="parcial2-hint">Máximo 30 puntos</div>
+                <div class="err" id="parcial2-err"></div>
+              </div>
+              <div class="field" data-key="examen">
+                <label for="examen">Examen final</label>
+                <div class="input-wrap"><input id="examen" name="examen" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-describedby="examen-hint examen-err" maxlength="7"><span class="max" aria-hidden="true">/ 30</span></div>
+                <div class="hint" id="examen-hint">Máximo 30 puntos</div>
+                <div class="err" id="examen-err"></div>
+              </div>
+            </div>
+            <div class="form-error" id="formError" role="alert"></div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-gold btn-lg" id="submitBtn">Entregar al Consejo</button>
+              <button type="button" class="btn btn-parch" id="clearBtn">Limpiar casillas</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel" data-panel="review" hidden>
+        <div class="parchment review">
+          <header class="parch-head">
+            <svg class="ico" aria-hidden="true"><use href="#i-scroll"/></svg>
+            <div>
+              <h2 id="reviewTitle">Sello real</h2>
+              <p class="lead">El escriba anotó tus puntos. ¿Los entregas al rey?</p>
+            </div>
+          </header>
+          <ul class="recap" id="recap"></ul>
+          <div class="form-actions">
+            <button type="button" class="btn btn-gold btn-lg" id="deliverBtn">Entregar al rey</button>
+            <button type="button" class="btn btn-parch" id="reviseBtn">Revisar mis notas</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" data-panel="verdict" hidden>
+        <div class="parchment verdict" id="verdictCard" data-tier="">
+          <p class="v-status" id="vStatus" role="status">El Consejo delibera…</p>
+          <div class="v-grid">
+            <div class="v-score-wrap">
+              <div class="v-score" aria-hidden="true"><span id="vScore">0.00</span><small>/ 100</small></div>
+              <div class="v-seal" id="vSeal" aria-hidden="true"></div>
+            </div>
+            <div class="v-text">
+              <h2 class="v-grade" id="vGrade" tabindex="-1"></h2>
+              <blockquote class="v-king" id="vKing"><p id="vKingText"></p><cite>Rey Aldemar</cite></blockquote>
+              <p class="v-council" id="vCouncil"></p>
+              <p class="v-meaning" id="vMeaning"></p>
+              <p class="v-next" id="vNext"></p>
+              <div class="v-xp" id="vXp"><span id="vXpText"></span></div>
+            </div>
+          </div>
+          <div class="form-actions v-actions" id="vActions">
+            <button type="button" class="btn btn-gold btn-lg" id="btnNueva">Nueva evaluación</button>
+            <button type="button" class="btn btn-parch" id="btnCronica">Ver mi crónica</button>
+            <button type="button" class="btn btn-parch" id="btnMenu">Menú principal</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="title-screen" id="titleScreen">
+    <div class="title-card">
+      <svg class="title-crest" aria-hidden="true"><use href="#crest"/></svg>
+      <h1>Reino de Aldemar</h1>
+      <p class="title-sub">Crónicas del Reino · Consejo Académico</p>
+      <ul class="title-menu" id="titleMenu" role="list">
+        <li><button type="button" class="menu-item primary" data-nav="hall" id="startBtn"><svg class="ico" aria-hidden="true"><use href="#i-crown"/></svg><span class="mi-text"><b id="startLabel">Comenzar evaluación</b><small>Presenta tus notas ante el rey</small></span></button></li>
+        <li><button type="button" class="menu-item" data-nav="cronica"><svg class="ico" aria-hidden="true"><use href="#i-scroll"/></svg><span class="mi-text"><b>Crónica</b><small id="menuChronSub">Historial de evaluaciones</small></span></button></li>
+        <li><button type="button" class="menu-item" data-nav="personajes"><svg class="ico" aria-hidden="true"><use href="#i-people"/></svg><span class="mi-text"><b>Personajes</b><small>Conoce a la corte</small></span></button></li>
+        <li><button type="button" class="menu-item" data-nav="ajustes"><svg class="ico" aria-hidden="true"><use href="#i-gear"/></svg><span class="mi-text"><b>Ajustes</b><small>Música, voces y animaciones</small></span></button></li>
+        <li><button type="button" class="menu-item" data-nav="ayuda"><svg class="ico" aria-hidden="true"><use href="#i-help"/></svg><span class="mi-text"><b>Ayuda</b><small>Cómo se calcula tu nota</small></span></button></li>
+      </ul>
+      <p class="title-foot" id="titleRank"></p>
+    </div>
+  </div>
+</main>
+
+<div class="modal-layer" id="modalLayer" hidden>
+  <div class="modal" id="modal-cronica" role="dialog" aria-modal="true" aria-labelledby="cronicaTitle" tabindex="-1" hidden>
+    <header class="modal-head"><svg class="ico" aria-hidden="true"><use href="#i-scroll"/></svg><h2 id="cronicaTitle">Crónica del Aprendiz</h2><button type="button" class="modal-x" data-close aria-label="Cerrar crónica"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <div class="modal-body">
+      <p class="lead" id="chronSummary">Registro de tus evaluaciones ante el Consejo Real.</p>
+      <ol class="chron-list" id="chronList"></ol>
+      <div class="empty" id="chronEmpty"><svg class="ico big" aria-hidden="true"><use href="#i-scroll"/></svg><p>La crónica está en blanco. Presenta tu primera evaluación y el escriba la registrará aquí.</p></div>
+    </div>
+    <footer class="modal-foot"><button type="button" class="btn btn-danger" id="clearChronBtn"><svg class="ico" aria-hidden="true"><use href="#i-trash"/></svg>Limpiar historial</button><button type="button" class="btn btn-parch" data-close>Cerrar</button></footer>
+  </div>
+
+  <div class="modal" id="modal-personajes" role="dialog" aria-modal="true" aria-labelledby="persTitle" tabindex="-1" hidden>
+    <header class="modal-head"><svg class="ico" aria-hidden="true"><use href="#i-people"/></svg><h2 id="persTitle">Personajes del Reino</h2><button type="button" class="modal-x" data-close aria-label="Cerrar personajes"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <div class="modal-body"><p class="lead">Quiénes habitan el Salón del Trono.</p><div class="roster" id="roster"></div></div>
+    <footer class="modal-foot"><button type="button" class="btn btn-parch" data-close>Cerrar</button></footer>
+  </div>
+
+  <div class="modal" id="modal-ajustes" role="dialog" aria-modal="true" aria-labelledby="setTitle" tabindex="-1" hidden>
+    <header class="modal-head"><svg class="ico" aria-hidden="true"><use href="#i-gear"/></svg><h2 id="setTitle">Ajustes</h2><button type="button" class="modal-x" data-close aria-label="Cerrar ajustes"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <div class="modal-body settings">
+      <fieldset class="set-group"><legend>Sonido</legend>
+        <div class="set-row"><span id="lbl-mute">Silenciar todo</span><button type="button" class="switch" role="switch" data-set="masterMute" aria-labelledby="lbl-mute"></button></div>
+        <div class="set-row"><span id="lbl-music">Música</span><button type="button" class="switch" role="switch" data-set="musicOn" aria-labelledby="lbl-music"></button></div>
+        <div class="set-row"><label for="set-musicVol">Volumen de música</label><input type="range" id="set-musicVol" data-range="musicVol" min="0" max="100" step="1"><output data-out="musicVol"></output></div>
+        <div class="set-row"><span id="lbl-sfx">Efectos de sonido</span><button type="button" class="switch" role="switch" data-set="sfxOn" aria-labelledby="lbl-sfx"></button></div>
+        <div class="set-row"><label for="set-sfxVol">Volumen de efectos</label><input type="range" id="set-sfxVol" data-range="sfxVol" min="0" max="100" step="1"><output data-out="sfxVol"></output></div>
+      </fieldset>
+      <fieldset class="set-group"><legend>Voces</legend>
+        <p class="note" id="voiceNote" hidden>Este navegador no ofrece síntesis de voz. El resto de la aplicación funciona con normalidad.</p>
+        <div class="set-row"><span id="lbl-voice">Voz de los personajes</span><button type="button" class="switch" role="switch" data-set="voiceOn" aria-labelledby="lbl-voice"></button></div>
+        <div class="set-row"><label for="set-voiceVol">Volumen de voz</label><input type="range" id="set-voiceVol" data-range="voiceVol" min="0" max="100" step="1"><output data-out="voiceVol"></output></div>
+        <div class="set-row"><label for="set-voiceRate">Velocidad de voz</label><input type="range" id="set-voiceRate" data-range="voiceRate" min="60" max="140" step="5"><output data-out="voiceRate"></output></div>
+        <div class="set-row"><span>Escuchar una muestra</span><button type="button" class="btn btn-parch btn-sm" id="voiceTest">Probar voz</button></div>
+      </fieldset>
+      <fieldset class="set-group"><legend>Pantalla</legend>
+        <div class="set-row col"><span id="lbl-anim">Animaciones</span><div class="seg" role="radiogroup" aria-labelledby="lbl-anim" data-seg="anim"><button type="button" role="radio" data-val="full">Completas</button><button type="button" role="radio" data-val="reduced">Reducidas</button><button type="button" role="radio" data-val="off">Ninguna</button></div></div>
+        <div class="set-row col"><span id="lbl-visual">Ambiente del salón</span><div class="seg" role="radiogroup" aria-labelledby="lbl-visual" data-seg="visual"><button type="button" role="radio" data-val="day">Atardecer</button><button type="button" role="radio" data-val="night">Noche</button><button type="button" role="radio" data-val="torch">Antorchas</button></div></div>
+        <div class="set-row col"><span id="lbl-text">Tamaño del texto</span><div class="seg" role="radiogroup" aria-labelledby="lbl-text" data-seg="textSize"><button type="button" role="radio" data-val="normal">Normal</button><button type="button" role="radio" data-val="large">Grande</button></div></div>
+      </fieldset>
+      <fieldset class="set-group"><legend>Datos guardados</legend>
+        <div class="set-row"><span>Restablecer ajustes</span><button type="button" class="btn btn-parch btn-sm" id="resetSettings">Restablecer</button></div>
+        <div class="set-row"><span>Borrar progreso y crónica</span><button type="button" class="btn btn-danger btn-sm" id="resetProgress">Borrar todo</button></div>
+      </fieldset>
+    </div>
+    <footer class="modal-foot"><button type="button" class="btn btn-parch" data-close>Cerrar</button></footer>
+  </div>
+
+  <div class="modal" id="modal-ayuda" role="dialog" aria-modal="true" aria-labelledby="helpTitle" tabindex="-1" hidden>
+    <header class="modal-head"><svg class="ico" aria-hidden="true"><use href="#i-help"/></svg><h2 id="helpTitle">Ayuda</h2><button type="button" class="modal-x" data-close aria-label="Cerrar ayuda"><svg class="ico" aria-hidden="true"><use href="#i-close"/></svg></button></header>
+    <div class="modal-body help">
+      <h3>Cómo se juega</h3>
+      <ol class="steps">
+        <li>Entra al salón y saluda al rey.</li>
+        <li>Anota tus puntos: tareas (0 a 80), dos parciales (0 a 30 cada uno) y examen final (0 a 30).</li>
+        <li>Entrega el pergamino. El escriba y el consejero lo revisan.</li>
+        <li>Confirma la entrega y espera el veredicto del rey.</li>
+        <li>Gana experiencia, sube de rango y consulta tu crónica cuando quieras.</li>
+      </ol>
+      <h3>Cómo se calcula la nota</h3>
+      <p>Tareas y parciales forman el 60 % del total: dentro de ese bloque, las tareas pesan 40 % y el promedio de los parciales 60 %. El examen final aporta el 40 % restante. Puedes escribir decimales con punto o con coma.</p>
+      <table class="scale"><caption class="sr-only">Escala de notas</caption><thead><tr><th scope="col">Puntaje</th><th scope="col">Nota</th></tr></thead><tbody>
+        <tr><td>Menos de 60</td><td>Reprobado</td></tr><tr><td>60 a 70</td><td>2</td></tr><tr><td>71 a 80</td><td>3</td></tr><tr><td>81 a 90</td><td>4</td></tr><tr><td>91 a 100</td><td>5</td></tr></tbody></table>
+      <h3>Atajos de teclado</h3>
+      <ul class="keys"><li><kbd>Enter</kbd> o <kbd>Espacio</kbd> avanzan el diálogo.</li><li><kbd>Esc</kbd> cierra ventanas y menús.</li><li><kbd>M</kbd> reproduce o pausa la música.</li></ul>
+    </div>
+    <footer class="modal-foot"><button type="button" class="btn btn-parch" data-close>Cerrar</button></footer>
+  </div>
+
+  <div class="modal small" id="modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="confTitle" aria-describedby="confText" tabindex="-1" hidden>
+    <header class="modal-head"><svg class="ico" aria-hidden="true"><use href="#i-warn"/></svg><h2 id="confTitle">¿Seguro?</h2></header>
+    <div class="modal-body"><p id="confText"></p></div>
+    <footer class="modal-foot"><button type="button" class="btn btn-parch" id="confNo">Cancelar</button><button type="button" class="btn btn-danger" id="confYes">Confirmar</button></footer>
+  </div>
+</div>
+
+<div class="music-panel" id="musicPanel" role="dialog" aria-label="Reproductor de música" hidden>
+  <div class="mp-head">
+    <div class="mp-title"><span class="mp-track" id="mpTrack">—</span><span class="mp-status" id="mpStatus" role="status">En pausa</span></div>
+    <div class="mp-eq" aria-hidden="true" id="mpEq"><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+  <div class="mp-progress" aria-hidden="true"><i id="mpFill"></i></div>
+  <div class="mp-transport">
+    <button type="button" class="icon-btn" id="mpPrev" aria-label="Pista anterior"><svg class="ico" aria-hidden="true"><use href="#i-prev"/></svg></button>
+    <button type="button" class="icon-btn big" id="mpPlay" aria-label="Reproducir"><svg class="ico" aria-hidden="true"><use href="#i-play"/></svg></button>
+    <button type="button" class="icon-btn" id="mpNext" aria-label="Pista siguiente"><svg class="ico" aria-hidden="true"><use href="#i-next"/></svg></button>
+    <button type="button" class="icon-btn" id="mpMute" aria-label="Silenciar todo el sonido" aria-pressed="false"><svg class="ico" aria-hidden="true"><use href="#i-vol"/></svg></button>
+  </div>
+  <div class="mp-row"><label for="mpMusicVol">Música</label><input type="range" id="mpMusicVol" data-range="musicVol" min="0" max="100" step="1"></div>
+  <div class="mp-row"><label for="mpSfxVol">Efectos</label><input type="range" id="mpSfxVol" data-range="sfxVol" min="0" max="100" step="1"></div>
+  <div class="mp-row check"><span id="lbl-auto">Cambiar según la escena</span><button type="button" class="switch" role="switch" data-set="autoMood" aria-labelledby="lbl-auto"></button></div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+<div class="sr-only" id="srLive" role="status" aria-live="polite"></div>
+
+<script>
+/* ═══════════════ CharArt — generador de personajes en SVG ═══════════════
+   Cada personaje usa el mismo esqueleto (cabeza, cuello, torso, brazos de dos
+   segmentos, manos) con ropa, peinado y accesorios propios. Las expresiones
+   se regeneran al cambiar de ánimo; la animación es solo CSS (transform/opacity). */
+const CharArt=(function(){
+  'use strict';
+  let counter=0;
+  const OL='#4a2c17';                      /* contorno suave de la piel */
+  const lin=(id,stops,v)=>`<linearGradient id="${id}" ${v?'x1="0" y1="0" x2="0" y2="1"':'x1="0" y1="0" x2="1" y2="0"'}>${stops.map(s=>`<stop offset="${s[0]}" stop-color="${s[1]}"${s[2]!=null?` stop-opacity="${s[2]}"`:''}/>`).join('')}</linearGradient>`;
+
+  /* ── datos por personaje ── */
+  const SPEC={
+    rey:{skin:['#f8ddc2','#eac19b','#c8956a'],iris:'#4f7597',brow:'#d8d4ca',browW:5.2,age:2,rosy:.22,
+      robe:['#7a3fb0','#55278a','#2e1250'],sleeve:'#5b2b91',sleeveD:'#2e1250',cuff:'#f4ecd8',trim:'#e2b653'},
+    escriba:{skin:['#f9ddc2','#ecc49d','#cd9b70'],iris:'#6a5230',brow:'#5b3d24',browW:3.4,age:0,rosy:.2,
+      robe:['#a5773d','#7c5528','#4b3018'],sleeve:'#8a6030',sleeveD:'#4b3018',cuff:'#efe2c2',trim:'#5b3d24'},
+    consejero:{skin:['#f2d5b6','#e0b791','#b98a62'],iris:'#7b5a26',brow:'#1c1917',browW:3.2,age:1,rosy:.1,
+      robe:['#3b727a','#27525a','#132c31'],sleeve:'#2c5a62',sleeveD:'#132c31',cuff:'#cfd7de',trim:'#cfd7de'},
+    bufon:{skin:['#fce2c6','#f0c7a1','#d19d72'],iris:'#2f7f6e',brow:'#7b3a1a',browW:3.4,age:0,rosy:.5,
+      robe:['#d13a35','#b02a2a','#7a1a1c'],sleeve:'#e5b62a',sleeveD:'#8a6a12',cuff:'#f4ecd8',trim:'#e5b62a'},
+    caballero:{skin:['#e9c097','#d3a377','#a9784f'],iris:'#5b4630',brow:'#2e1d12',browW:4.2,age:1,rosy:.12,
+      robe:['#d0d8e2','#93a0af','#4f5a68'],sleeve:'#8b95a2',sleeveD:'#4a5461',cuff:'#5a4636',trim:'#e2b653'},
+    maestro:{skin:['#f5d8ba','#e4bb92','#c38f66'],iris:'#5b7fa0',brow:'#e9e6df',browW:5.6,age:3,rosy:.25,
+      robe:['#5f81a8','#40628c','#243a58'],sleeve:'#476a94',sleeveD:'#243a58',cuff:'#efe6cf',trim:'#d8b458'},
+    aprendiz:{skin:['#f7d6b4','#e7b98f','#c48d62'],iris:'#5a7a3c',brow:'#5a3a22',browW:3.4,age:0,rosy:.32,
+      robe:['#c9b28a','#a89068','#6d5a3c'],sleeve:'#9a8460',sleeveD:'#5c4a30',cuff:'#efe2c2',trim:'#5c4a30'}
+  };
+
+  /* ── cara: cejas + ojos + boca según ánimo ── */
+  const MOODS={
+    neutral:{brow:'n',eye:'open',mouth:'flat'},
+    pleased:{brow:'p',eye:'open',mouth:'soft'},
+    happy:{brow:'h',eye:'open',mouth:'grin'},
+    radiant:{brow:'r',eye:'arc',mouth:'beam'},
+    stern:{brow:'s',eye:'angry',mouth:'stern'},
+    wary:{brow:'w',eye:'half',mouth:'wary'},
+    sad:{brow:'d',eye:'sad',mouth:'sad'},
+    surprised:{brow:'u',eye:'wide',mouth:'gasp'},
+    smirk:{brow:'m',eye:'half',mouth:'smirk'},
+    thinking:{brow:'t',eye:'half',mouth:'hmm'}
+  };
+  const BROWS={
+    n:['M94,88 Q104,84 114,88','M126,88 Q136,84 146,88'],
+    p:['M94,87 Q104,82 114,86','M126,86 Q136,82 146,87'],
+    h:['M94,85 Q104,79 114,84','M126,84 Q136,79 146,85'],
+    r:['M94,83 Q104,75 114,82','M126,82 Q136,75 146,83'],
+    s:['M93,83 L115,92','M147,83 L125,92'],
+    w:['M94,84 Q104,78 114,84','M126,89 L146,87'],
+    d:['M93,91 L115,84','M147,91 L125,84'],
+    u:['M94,80 Q104,72 114,79','M126,79 Q136,72 146,80'],
+    m:['M94,88 Q104,85 114,88','M126,86 Q138,78 146,84'],
+    t:['M94,85 Q104,79 114,85','M126,90 L146,88']
+  };
+  function eye(c,u,cx,cy,mode,side){
+    const s=side; /* -1 izquierda del espectador, +1 derecha */
+    const iris=c.iris, cyI=mode==='sad'?cy+1.4:cy+.3;
+    const sclera=`<path d="M${cx-9.5},${cy} Q${cx},${cy-8.5} ${cx+9.5},${cy} Q${cx},${cy+6.5} ${cx-9.5},${cy}Z" fill="#fbf7ee" stroke="#3a2416" stroke-width=".9"/>`;
+    const ball=r=>`<circle cx="${cx}" cy="${cyI}" r="${r}" fill="${iris}"/><circle cx="${cx}" cy="${cyI}" r="${r*.5}" fill="#120a05"/><circle cx="${cx+1.5}" cy="${cyI-1.4}" r="1.1" fill="#fff"/>`;
+    const lash=`<path d="M${cx-10},${cy-.4} Q${cx},${cy-9.4} ${cx+10},${cy-.4}" fill="none" stroke="#2a170b" stroke-width="1.9" stroke-linecap="round"/>`;
+    if(mode==='arc') return `<path d="M${cx-8.5},${cy+1.5} Q${cx},${cy-8} ${cx+8.5},${cy+1.5}" fill="none" stroke="#2a170b" stroke-width="2.4" stroke-linecap="round"/>`;
+    if(mode==='wide') return `<path d="M${cx-10.5},${cy} Q${cx},${cy-11} ${cx+10.5},${cy} Q${cx},${cy+9} ${cx-10.5},${cy}Z" fill="#fbf7ee" stroke="#3a2416" stroke-width=".9"/>${ball(3.6)}`+lash;
+    let lid='';
+    if(mode==='half') lid=`<path d="M${cx-10.5},${cy-1.4} L${cx+10.5},${cy-1.4} L${cx+10.5},${cy-10} L${cx-10.5},${cy-10}Z" fill="${c.skin[1]}"/><path d="M${cx-10},${cy-1.4} L${cx+10},${cy-1.4}" stroke="#2a170b" stroke-width="1.9" stroke-linecap="round"/>`;
+    if(mode==='angry'){ const a=cy-4.6,b=cy+1; /* párpado inclinado hacia el centro */
+      lid=s<0?`<path d="M${cx-10.5},${a} L${cx+10.5},${b} L${cx+10.5},${cy-10} L${cx-10.5},${cy-10}Z" fill="${c.skin[1]}"/><path d="M${cx-10},${a} L${cx+10},${b}" stroke="#2a170b" stroke-width="1.9" stroke-linecap="round"/>`
+                  :`<path d="M${cx+10.5},${a} L${cx-10.5},${b} L${cx-10.5},${cy-10} L${cx+10.5},${cy-10}Z" fill="${c.skin[1]}"/><path d="M${cx+10},${a} L${cx-10},${b}" stroke="#2a170b" stroke-width="1.9" stroke-linecap="round"/>`; }
+    return sclera+ball(4.5)+(lid||lash)+`<path d="M${cx-8},${cy+3.6} Q${cx},${cy+7.4} ${cx+8},${cy+3.6}" fill="none" stroke="${c.skin[2]}" stroke-width=".9" opacity=".55"/>`;
+  }
+  const MOUTHS={
+    flat:'<path d="M110,133 Q120,135.5 130,133" fill="none" stroke="#8a3f33" stroke-width="2.4" stroke-linecap="round"/>',
+    soft:'<path d="M109,131.5 Q120,138 131,131.5" fill="none" stroke="#8a3f33" stroke-width="2.5" stroke-linecap="round"/>',
+    grin:'<path d="M107,129 Q120,146 133,129 Q120,134 107,129Z" fill="#fffaf0" stroke="#7a2f26" stroke-width="2" stroke-linejoin="round"/>',
+    beam:'<path d="M105,128 Q120,151 135,128 Q120,134 105,128Z" fill="#fffaf0" stroke="#7a2f26" stroke-width="2.2" stroke-linejoin="round"/><path d="M110,137 Q120,142 130,137" fill="none" stroke="#c46a5c" stroke-width="1.5"/>',
+    stern:'<path d="M109,135 Q120,131 131,135" fill="none" stroke="#7a3428" stroke-width="2.8" stroke-linecap="round"/>',
+    wary:'<path d="M110,135 Q119,131.5 131,136" fill="none" stroke="#8a3f33" stroke-width="2.5" stroke-linecap="round"/>',
+    sad:'<path d="M110,137 Q120,130.5 130,137" fill="none" stroke="#8a3f33" stroke-width="2.5" stroke-linecap="round"/>',
+    gasp:'<ellipse cx="120" cy="136" rx="6" ry="8" fill="#3b0f0a" stroke="#7a2f26" stroke-width="1.6"/><ellipse cx="120" cy="140" rx="3.4" ry="2.6" fill="#b5544a"/>',
+    smirk:'<path d="M110,134 Q123,137.5 133,129.5" fill="none" stroke="#8a3f33" stroke-width="2.5" stroke-linecap="round"/>',
+    hmm:'<path d="M112,134.5 Q120,132.5 128,135.5" fill="none" stroke="#8a3f33" stroke-width="2.4" stroke-linecap="round"/>'
+  };
+  function face(c,u,mood,id){
+    const m=MOODS[mood]||MOODS.neutral, b=BROWS[m.brow];
+    const rosy=c.rosy+(mood==='happy'||mood==='radiant'||mood==='pleased'?.2:0);
+    const bw=c.browW+(id==='rey'||id==='maestro'?0:0);
+    return `<ellipse cx="96" cy="118" rx="9" ry="5.5" fill="#e0715f" opacity="${rosy}"/><ellipse cx="144" cy="118" rx="9" ry="5.5" fill="#e0715f" opacity="${rosy}"/>`
+      +eye(c,u,104,100,m.eye,-1)+eye(c,u,136,100,m.eye,1)
+      +`<g fill="none" stroke="${c.brow}" stroke-width="${bw}" stroke-linecap="round">${b.map(d=>`<path d="${d}"/>`).join('')}</g>`
+      +`<g class="lids"><ellipse class="lid" cx="104" cy="99" rx="11.5" ry="9" fill="${c.skin[1]}"/><ellipse class="lid" cx="136" cy="99" rx="11.5" ry="9" fill="${c.skin[1]}"/></g>`
+      +MOUTHS[m.mouth]
+      +`<g class="talk"><ellipse cx="120" cy="134" rx="7.4" ry="5" fill="#3b0f0a"/><ellipse cx="120" cy="137" rx="4" ry="2" fill="#b5544a"/></g>`
+      +(mood==='sad'?`<path d="M151,108 Q153,114 151,118 Q149,114 151,108Z" fill="#9fd0ea" opacity=".85"/>`:'');
+  }
+
+  /* ── piezas reutilizables ── */
+  function hand(u,c,x,y,pose,glove){
+    const sk=glove?glove:`url(#${u}sk)`, ol=glove?'#333b45':OL;
+    if(pose==='fist') return `<g transform="translate(${x},${y})"><path d="M-10,-8 C-10,-16 10,-16 10,-8 L11,6 C11,14 -11,14 -11,6Z" fill="${sk}" stroke="${ol}" stroke-width="1.2"/><path d="M-6,-6 L-6,4 M0,-7 L0,4 M6,-6 L6,4" stroke="${ol}" stroke-width=".9" opacity=".55"/></g>`;
+    if(pose==='point') return `<g transform="translate(${x},${y})"><path d="M-9,-6 C-9,-14 9,-14 9,-6 L10,8 C10,15 -10,15 -10,8Z" fill="${sk}" stroke="${ol}" stroke-width="1.2"/><path d="M4,-8 L6,-24 Q8,-27 10,-24 L9,-6Z" fill="${sk}" stroke="${ol}" stroke-width="1.2"/><path d="M-9,0 C-15,1 -15,9 -10,11" fill="${sk}" stroke="${ol}" stroke-width="1.1"/></g>`;
+    return `<g transform="translate(${x},${y})"><path d="M-9,-7 C-9,-15 9,-15 9,-7 L10,8 C10,16 -10,16 -10,8Z" fill="${sk}" stroke="${ol}" stroke-width="1.2"/><path d="M-9,-1 C-16,1 -16,10 -10,12" fill="${sk}" stroke="${ol}" stroke-width="1.1"/><path d="M-3,5 L-3,14 M2,5 L2,15 M6.5,5 L6.5,13" stroke="${ol}" stroke-width=".9" opacity=".45"/></g>`;
+  }
+  function arm(u,c,side,o){
+    o=o||{}; const L=side==='L';
+    const S=L?[72,184]:[168,184], E=L?[54,254]:[186,254], W=L?[60,306]:[180,306];
+    const slv=o.sleeve||c.sleeve, sd=o.sleeveD||c.sleeveD, w1=o.w1||34, w2=o.w2||30;
+    return `<g class="arm arm${side}" style="transform-origin:${S[0]}px ${S[1]}px">
+      <path d="M${S}L${E}" fill="none" stroke="${sd}" stroke-width="${w1+3}" stroke-linecap="round"/>
+      <path d="M${S}L${E}" fill="none" stroke="${slv}" stroke-width="${w1}" stroke-linecap="round"/>
+      <path d="M${S[0]+(L?-6:6)},${S[1]+4}L${E[0]+(L?-6:6)},${E[1]-2}" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="7" stroke-linecap="round"/>
+      ${o.pauldron||''}
+      <g class="fore fore${side}" style="transform-origin:${E[0]}px ${E[1]}px">
+        <path d="M${E}L${W}" fill="none" stroke="${sd}" stroke-width="${w2+3}" stroke-linecap="round"/>
+        <path d="M${E}L${W}" fill="none" stroke="${slv}" stroke-width="${w2}" stroke-linecap="round"/>
+        <path d="M${E[0]+(L?-5:5)},${E[1]+4}L${W[0]+(L?-5:5)},${W[1]-4}" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="6" stroke-linecap="round"/>
+        ${o.cuffSVG||`<ellipse cx="${W[0]}" cy="${W[1]+1}" rx="${(o.cuffW||16)}" ry="6.5" fill="${o.cuff||c.cuff}" stroke="${sd}" stroke-width="1.2"/>`}
+        ${hand(u,c,W[0],W[1]+12,o.pose,o.glove)}
+        ${o.held||''}
+      </g>
+    </g>`;
+  }
+  const gold=u=>`url(#${u}gold)`;
+  const folds=(color,op)=>`<g fill="none" stroke="${color}" stroke-opacity="${op}" stroke-width="2.2" stroke-linecap="round"><path d="M92,262 C88,312 84,352 78,388"/><path d="M120,268 C120,320 120,356 120,390"/><path d="M150,262 C154,312 158,352 164,388"/><path d="M70,240 C64,300 58,350 52,388"/></g>`;
+  const hem=(u,c)=>`<path d="M40,376 L200,376 L201,392 L39,392Z" fill="${gold(u)}" opacity=".9"/><path d="M40,376 L200,376" stroke="#fff5cf" stroke-opacity=".5" stroke-width="1"/>`;
+
+  /* ── hairstyles / headgear ── */
+  function hair(style,col){
+    const b=col[0],s=col[1];
+    const strands=(d,st)=>`<path d="${d}" fill="none" stroke="${st}" stroke-width="1.1" opacity=".6"/>`;
+    switch(style){
+    case 'king': return {
+      back:`<path d="M84,86 C68,104 70,146 86,172 L104,150 L100,110Z M156,86 C172,104 170,146 154,172 L136,150 L140,110Z" fill="${b}" stroke="${s}" stroke-width="1"/>`,
+      front:`<path d="M83,92 C80,62 98,50 120,50 C144,50 160,62 157,92 C152,76 142,68 128,66 C118,72 102,72 92,68 C88,74 85,82 83,92Z" fill="${b}" stroke="${s}" stroke-width="1"/>${strands('M96,64 Q92,74 88,86',s)}${strands('M144,64 Q148,74 152,86',s)}
+        <path d="M83,92 C79,108 82,126 89,138 L93,120 C89,112 88,102 90,92Z M157,92 C161,108 158,126 151,138 L147,120 C151,112 152,102 150,92Z" fill="${b}" stroke="${s}" stroke-width="1"/>`};
+    case 'bowl': return {
+      back:'',
+      front:`<path d="M84,94 C80,64 98,52 120,52 C142,52 160,64 156,94 C152,84 146,80 138,80 C132,73 108,73 102,80 C94,80 88,84 84,94Z" fill="${b}" stroke="${s}" stroke-width="1"/>${strands('M100,58 Q94,70 90,84',s)}${strands('M120,54 Q120,64 122,72',s)}
+        <path d="M84,94 C82,106 84,116 88,120 L92,102Z M156,94 C158,106 156,116 152,120 L148,102Z" fill="${b}" stroke="${s}" stroke-width="1"/>`};
+    case 'slick': return {
+      back:`<path d="M84,90 C68,110 70,160 78,196 L100,170 L102,110Z M156,90 C172,110 170,160 162,196 L140,170 L138,110Z" fill="${b}"/>`,
+      front:`<path d="M83,96 C78,60 100,48 122,50 C146,52 160,66 157,96 C152,80 142,70 124,66 C110,64 94,72 83,96Z" fill="${b}" stroke="${s}" stroke-width="1"/>${strands('M100,58 Q120,56 148,68','#5b5651')}${strands('M96,66 Q120,62 152,78','#5b5651')}`};
+    case 'messy': return {
+      back:'',
+      front:`<path d="M83,96 C76,62 96,46 118,48 C140,44 162,60 157,96 C154,84 150,78 142,74 L148,84 L134,70 L136,82 L122,68 L118,80 L108,68 L104,82 L94,72 C88,78 85,86 83,96Z" fill="${b}" stroke="${s}" stroke-width="1"/>`};
+    case 'short': return {
+      back:'',
+      front:`<path d="M84,94 C78,62 98,50 120,50 C144,50 162,62 156,94 C154,82 148,74 138,72 C128,68 110,68 100,72 C92,74 86,82 84,94Z" fill="${b}" stroke="${s}" stroke-width="1"/>${strands('M96,60 Q110,54 132,58',s)}`};
+    case 'elder': return {
+      back:`<path d="M84,100 C72,112 74,140 84,160 L96,136Z M156,100 C168,112 166,140 156,160 L144,136Z" fill="${b}"/>`,
+      front:`<path d="M84,96 C80,80 84,68 92,62 C88,76 88,90 92,104 C90,116 90,124 92,132 C86,124 82,110 84,96Z M156,96 C160,80 156,68 148,62 C152,76 152,90 148,104 C150,116 150,124 148,132 C154,124 158,110 156,96Z" fill="${b}" stroke="${s}" stroke-width="1"/>`};
+    default: return {back:'',front:''};
+    }
+  }
+  function ageLines(a,skin){
+    if(!a) return '';
+    const op=.16+.08*a;
+    return `<g fill="none" stroke="${skin[2]}" stroke-width="1.1" stroke-linecap="round" opacity="${op*2.4}"><path d="M98,72 Q120,68 142,72"/>${a>1?'<path d="M100,77 Q120,73 140,77"/>':''}<path d="M88,102 L84,104 M88,106 L84,109 M152,102 L156,104 M152,106 L156,109"/><path d="M104,122 Q100,130 106,138 M136,122 Q140,130 134,138" opacity=".7"/></g>`;
+  }
+
+  /* ── ropa: cuerpo completo de cada personaje ── */
+  function longRobe(u,c,extra){
+    return `<path d="M120,168 C96,168 74,172 62,184 C54,192 52,210 50,240 L40,392 L200,392 L190,240 C188,210 186,192 178,184 C166,172 144,168 120,168Z" fill="url(#${u}rb)" stroke="${c.robe[2]}" stroke-width="1.5"/>
+      <path d="M150,180 C176,190 186,220 190,250 L200,392 L150,392Z" fill="#000" opacity=".16"/>
+      ${folds('#000',.22)}${folds('#fff',.05)}${extra||''}${hem(u,c)}`;
+  }
+  function neck(u,c){
+    return `<path d="M104,134 L104,172 Q120,182 136,172 L136,134Z" fill="url(#${u}sk)" stroke="${OL}" stroke-width="1"/><path d="M104,140 Q120,158 136,140 L136,150 Q120,168 104,150Z" fill="#000" opacity=".2"/>`;
+  }
+  const ITEM={
+    sceptre:u=>`<g><rect x="184.5" y="196" width="5" height="212" rx="2" fill="${gold(u)}" stroke="#7a5416" stroke-width=".8"/><circle cx="187" cy="188" r="11" fill="${gold(u)}" stroke="#7a5416" stroke-width="1.2"/><circle cx="187" cy="188" r="6" fill="#a12522" stroke="#5a1210" stroke-width="1"/><circle cx="184.6" cy="185.6" r="1.8" fill="#fff" opacity=".8"/><path d="M182,199 h10" stroke="#7a5416" stroke-width="2"/><path d="M182,204 h10" stroke="#7a5416" stroke-width="1.4"/></g>`,
+    scroll:u=>`<g><rect x="40" y="298" width="42" height="15" rx="7" fill="#efe0b6" stroke="#8a6a35" stroke-width="1.2" transform="rotate(-14 61 305)"/><ellipse cx="42" cy="306" rx="4" ry="7.5" fill="#d8c08a" stroke="#8a6a35" stroke-width="1" transform="rotate(-14 61 305)"/><path d="M50,304 h26 M52,308 h22" stroke="#8a6a35" stroke-width=".8" opacity=".6" transform="rotate(-14 61 305)"/></g>`,
+    quill:u=>`<g><path d="M181,298 C186,262 196,230 210,198 C208,226 198,266 186,304Z" fill="#f6efe0" stroke="#8a7a5a" stroke-width="1"/><path d="M181,304 C188,262 198,232 210,198" fill="none" stroke="#8a7a5a" stroke-width="1.2"/><path d="M204,214 L192,244 M200,224 L189,252" stroke="#a89a7a" stroke-width=".8"/></g>`,
+    ledger:u=>`<g transform="rotate(-8 56 308)"><rect x="34" y="296" width="44" height="34" rx="2.5" fill="#5e3a1e" stroke="#2c1a0c" stroke-width="1.4"/><rect x="38" y="299" width="36" height="28" rx="1.5" fill="#efe2bd"/><path d="M42,306 h28 M42,311 h28 M42,316 h20" stroke="#6b4a2a" stroke-width="1" opacity=".7"/><path d="M34,296 v34" stroke="#c99b3e" stroke-width="3"/></g>`,
+    marotte:u=>`<g><rect x="177.5" y="222" width="4.5" height="140" rx="2" fill="#7b4a22" stroke="#3b2210" stroke-width=".8"/><circle cx="180" cy="212" r="12" fill="#f3d3ac" stroke="#4a2c17" stroke-width="1.2"/><path d="M168,208 L174,190 L180,204 L186,190 L192,208Z" fill="#c1272d" stroke="#4a2c17" stroke-width="1"/><circle cx="174" cy="190" r="3" fill="#e5b62a"/><circle cx="186" cy="190" r="3" fill="#e5b62a"/><circle cx="176" cy="212" r="1.5" fill="#222"/><circle cx="184" cy="212" r="1.5" fill="#222"/><path d="M175,217 Q180,221 185,217" stroke="#7a2f26" stroke-width="1.3" fill="none"/></g>`,
+    sword:u=>`<g><path d="M178,258 L182,258 L184,392 L180,404 L176,392Z" fill="url(#${u}steel)" stroke="#39424c" stroke-width="1"/><path d="M180,262 L180,392" stroke="#fff" stroke-opacity=".5" stroke-width="1"/><rect x="164" y="248" width="32" height="7" rx="3" fill="${gold(u)}" stroke="#7a5416" stroke-width="1"/><rect x="177" y="228" width="6" height="22" rx="2.5" fill="#4a2c17" stroke="#24140a" stroke-width="1"/><circle cx="180" cy="224" r="6" fill="${gold(u)}" stroke="#7a5416" stroke-width="1"/></g>`,
+    book:u=>`<g transform="rotate(10 60 300)"><rect x="34" y="282" width="50" height="40" rx="3" fill="#2e6b4a" stroke="#123526" stroke-width="1.5"/><rect x="34" y="282" width="7" height="40" rx="2" fill="#1f4e35"/><rect x="47" y="292" width="28" height="12" rx="2" fill="none" stroke="#e2b653" stroke-width="1.4"/><path d="M50,298 h22" stroke="#e2b653" stroke-width="1.2"/><path d="M36,321 h46" stroke="#f1e7c8" stroke-width="2"/></g>`
+  };
+
+  /* ── definición completa por personaje ── */
+  const BUILD={
+    rey(u,c){ return {
+      hair:hair('king',['#f2f0ea','#c3beb2']),
+      back:`<path d="M52,180 C22,244 20,330 30,394 L210,394 C220,330 218,244 188,180Z" fill="#8b1f24" stroke="#4a0f12" stroke-width="1.5"/><path d="M52,180 C26,244 24,330 32,394 L60,394 C52,330 54,244 68,190Z" fill="#000" opacity=".2"/>`,
+      body:longRobe(u,c,`<path d="M112,180 L112,392 L128,392 L128,180Z" fill="${gold(u)}" opacity=".95"/><path d="M116,180 L116,392 M124,180 L124,392" stroke="#7a5416" stroke-width=".7" opacity=".6"/>
+        <path d="M56,246 Q120,260 184,246 L184,260 Q120,274 56,260Z" fill="#3a1d10" stroke="#1d0f08" stroke-width="1"/><rect x="108" y="246" width="24" height="20" rx="4" fill="${gold(u)}" stroke="#7a5416" stroke-width="1.4"/><rect x="114" y="251" width="12" height="10" rx="2" fill="#7a2f9a" stroke="#4b1f6f"/>`),
+      front:`<path d="M60,186 Q120,160 180,186 Q188,208 172,226 Q148,214 120,222 Q92,214 68,226 Q52,208 60,186Z" fill="url(#${u}fur)" stroke="#bdb6a6" stroke-width="1.2"/>
+        <g fill="#241a14"><path d="M74,204 l3,12 l3,-12z M92,210 l3,12 l3,-12z M108,214 l3,12 l3,-12z M126,214 l3,12 l3,-12z M142,210 l3,12 l3,-12z M160,204 l3,12 l3,-12z"/></g>
+        <path d="M98,222 Q120,244 142,222" fill="none" stroke="${gold(u)}" stroke-width="4"/><circle cx="120" cy="240" r="7" fill="${gold(u)}" stroke="#7a5416" stroke-width="1.2"/><circle cx="120" cy="240" r="3.4" fill="#a12522"/>`,
+      defs:lin(u+'fur',[[0,'#ffffff'],[1,'#d8d2c4']],1),
+      armL:arm(u,c,'L',{cuff:'#f4ecd8',cuffW:19,pose:'open'}),
+      armR:arm(u,c,'R',{cuff:'#f4ecd8',cuffW:19,pose:'fist',held:ITEM.sceptre(u)}),
+      beard:`<path fill-rule="evenodd" d="M86,112 C84,142 96,168 120,186 C144,168 156,142 154,112 C150,122 142,126 134,124 C128,122 124,121 120,121 C116,121 112,122 106,124 C98,126 90,122 86,112Z M108,131 Q120,127 132,131 Q120,143 108,131Z" fill="#f1efe9" stroke="#b9b4a8" stroke-width="1"/>
+        <g fill="none" stroke="#b9b4a8" stroke-width="1" opacity=".8"><path d="M98,140 Q102,160 110,176"/><path d="M110,144 Q113,164 118,180"/><path d="M142,140 Q138,160 130,176"/><path d="M130,144 Q127,164 122,180"/></g>
+        <path d="M103,123 C110,117 118,121 120,125 C122,121 130,117 137,123 C132,131 124,128 120,128 C116,128 108,131 103,123Z" fill="#f1efe9" stroke="#b9b4a8" stroke-width="1"/>`,
+      hat:`<g><path d="M90,52 Q120,34 150,52 L148,62 L92,62Z" fill="#5a2a8a" stroke="#2e1250" stroke-width="1.2"/>
+        <path d="M88,56 L152,56 L151,70 Q120,76 89,70Z" fill="${gold(u)}" stroke="#7a5416" stroke-width="1.4"/>
+        <path d="M88,56 L90,30 L104,48 L112,22 L120,44 L128,22 L136,48 L150,30 L152,56Z" fill="${gold(u)}" stroke="#7a5416" stroke-width="1.4" stroke-linejoin="round"/>
+        <circle cx="90" cy="29" r="3" fill="#fbe7a1" stroke="#7a5416"/><circle cx="112" cy="21" r="3" fill="#fbe7a1" stroke="#7a5416"/><circle cx="128" cy="21" r="3" fill="#fbe7a1" stroke="#7a5416"/><circle cx="150" cy="29" r="3" fill="#fbe7a1" stroke="#7a5416"/>
+        <circle cx="120" cy="63" r="5.4" fill="#7a2f9a" stroke="#4b1f6f"/><circle cx="102" cy="63" r="3.6" fill="#a12522" stroke="#5a1210"/><circle cx="138" cy="63" r="3.6" fill="#2b8a55" stroke="#144a2c"/><path d="M92,59 L148,59" stroke="#fff" stroke-opacity=".45" stroke-width="1.2"/></g>`
+    };},
+    escriba(u,c){ return {
+      hair:hair('bowl',['#7a5232','#4e3220']),
+      back:'',
+      body:longRobe(u,c,`<path d="M56,246 Q120,260 184,246 L184,256 Q120,270 56,256Z" fill="#d8c08a" stroke="#6b4a25" stroke-width="1"/><path d="M60,256 C56,290 60,310 56,330" fill="none" stroke="#d8c08a" stroke-width="3"/>
+        <path d="M84,180 L156,296 L166,286 L98,176Z" fill="#4b3018" opacity=".9"/><g transform="translate(150,290)"><path d="M-2,-8 L28,-8 L30,26 L-4,26Z" fill="#6b4a25" stroke="#2c1a0c" stroke-width="1.4"/><path d="M-2,-2 Q13,6 30,-2" fill="none" stroke="#2c1a0c" stroke-width="1.2"/><circle cx="13" cy="6" r="2.4" fill="${gold(u)}"/></g>`),
+      front:`<path d="M100,170 L120,206 L140,170 Q120,178 100,170Z" fill="#f3ead2" stroke="#b9a874" stroke-width="1"/><path d="M104,172 L120,198 L136,172" fill="none" stroke="#c9b98a" stroke-width="1"/>`,
+      armL:arm(u,c,'L',{cuff:'#f3ead2',pose:'open',held:ITEM.ledger(u)}),
+      armR:arm(u,c,'R',{cuff:'#f3ead2',pose:'fist',held:ITEM.quill(u)}),
+      beard:'',mustache:'',
+      hat:`<g fill="none" stroke="#5b4a2a" stroke-width="1.6"><circle cx="104" cy="100" r="11.5"/><circle cx="136" cy="100" r="11.5"/><path d="M115.5,99 Q120,96 124.5,99"/><path d="M92.5,98 L86,96 M147.5,98 L154,96"/></g><circle cx="104" cy="100" r="11.5" fill="#fff" opacity=".08"/><circle cx="136" cy="100" r="11.5" fill="#fff" opacity=".08"/>`
+    };},
+    consejero(u,c){ return {
+      hair:hair('slick',['#26221f','#0f0d0c']),
+      back:`<path d="M46,176 C36,240 36,330 42,394 L198,394 C204,330 204,240 194,176Z" fill="#12282c" stroke="#0a1719" stroke-width="1.4"/>`,
+      body:longRobe(u,c,`<path d="M112,176 L108,392 L132,392 L128,176Z" fill="#12282c" opacity=".55"/><path d="M56,244 Q120,256 184,244 L184,254 Q120,266 56,254Z" fill="#12282c" stroke="#0a1719" stroke-width="1"/><rect x="110" y="244" width="20" height="16" rx="3" fill="#cfd7de" stroke="#6c757e" stroke-width="1.2"/>
+        <path d="M60,196 L60,246 M180,196 L180,246" stroke="#cfd7de" stroke-width="1" opacity=".5"/>`),
+      front:`<path d="M84,170 L92,150 L104,170 L104,180 Q120,190 136,180 L136,170 L148,150 L156,170 L162,196 Q120,180 78,196Z" fill="#1c3f45" stroke="#0a1719" stroke-width="1.4"/><path d="M84,170 L92,150 L104,170 M136,170 L148,150 L156,170" fill="none" stroke="#cfd7de" stroke-width="1.6"/>
+        <path d="M84,196 Q120,262 156,196" fill="none" stroke="#cfd7de" stroke-width="3.2" stroke-dasharray="6 3"/><path d="M120,248 m-9,0 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0" fill="#cfd7de" stroke="#6c757e" stroke-width="1.4" transform="translate(0,-2)"/><circle cx="120" cy="246" r="4.2" fill="#3b727a"/>`,
+      armL:arm(u,c,'L',{cuff:'#cfd7de',pose:'open',held:ITEM.scroll(u)}),
+      armR:arm(u,c,'R',{cuff:'#cfd7de',pose:'point'}),
+      beard:`<path d="M112,140 C112,152 116,160 120,168 C124,160 128,152 128,140 C124,143 122,144 120,144 C118,144 116,143 112,140Z" fill="#1c1917" stroke="#0f0d0c" stroke-width="1"/><path d="M103,124 C110,120 117,122 120,125 C123,122 130,120 137,124 C132,128 125,127 120,127 C115,127 108,128 103,124Z" fill="#1c1917"/>`,
+      hat:''
+    };},
+    bufon(u,c){ return {
+      hair:hair('none',['#000','#000']),
+      back:'',
+      lower:`<path d="M78,296 L118,296 L112,388 L72,388Z" fill="#e5b62a" stroke="#6a4f0c" stroke-width="1.2"/><path d="M122,296 L162,296 L168,388 L128,388Z" fill="#1e8a8a" stroke="#0d4a4a" stroke-width="1.2"/>
+        <g fill="#000" opacity=".16"><path d="M78,318 L118,318 L116,338 L76,338Z M122,340 L164,340 L166,360 L124,360Z"/></g>
+        <path d="M72,388 Q54,386 44,398 Q62,398 76,394Z" fill="#c1272d" stroke="#5a1210" stroke-width="1.2"/><path d="M168,388 Q186,386 196,398 Q178,398 164,394Z" fill="#c1272d" stroke="#5a1210" stroke-width="1.2"/><circle cx="44" cy="398" r="3.4" fill="${gold(u)}"/><circle cx="196" cy="398" r="3.4" fill="${gold(u)}"/>`,
+      body:`<path d="M120,168 C96,168 74,172 62,184 C54,192 52,214 52,250 L50,312 L64,304 L76,316 L88,304 L100,316 L112,304 L120,316 L128,304 L140,316 L152,304 L164,316 L176,304 L190,312 L188,250 C188,214 186,192 178,184 C166,172 144,168 120,168Z" fill="#d13a35" stroke="#5a1210" stroke-width="1.5"/>
+        <path d="M120,168 L120,316 L128,304 L140,316 L152,304 L164,316 L176,304 L190,312 L188,250 C188,214 186,192 178,184 C166,172 144,168 120,168Z" fill="#2f9a6a"/>
+        <g opacity=".5" fill="#fff"><path d="M84,230 l10,14 l-10,14 l-10,-14z M156,230 l10,14 l-10,14 l-10,-14z M84,270 l10,14 l-10,14 l-10,-14z M156,270 l10,14 l-10,14 l-10,-14z"/></g>
+        <path d="M52,262 Q120,278 188,262 L188,274 Q120,290 52,274Z" fill="#3a2410" stroke="#1d1208" stroke-width="1"/><circle cx="120" cy="272" r="7" fill="${gold(u)}" stroke="#7a5416"/>
+        <path d="M150,180 C176,190 186,220 188,250 L190,312 L150,316Z" fill="#000" opacity=".14"/>`,
+      front:`<path d="M76,180 Q120,214 164,180 L172,192 L158,200 L166,214 L146,210 L120,224 L94,210 L74,214 L82,200 L68,192Z" fill="#f3ead2" stroke="#8a7a55" stroke-width="1.2"/><g fill="#e5b62a" stroke="#6a4f0c" stroke-width=".8"><path d="M68,192 L58,206 L76,204Z M172,192 L182,206 L164,204Z M74,214 L68,230 L86,220Z M166,214 L172,230 L154,220Z"/></g><circle cx="58" cy="207" r="3.6" fill="${gold(u)}"/><circle cx="182" cy="207" r="3.6" fill="${gold(u)}"/>`,
+      armL:arm(u,c,'L',{sleeve:'#d13a35',sleeveD:'#5a1210',cuff:'#f3ead2',cuffW:14,pose:'open'}),
+      armR:arm(u,c,'R',{sleeve:'#2f9a6a',sleeveD:'#124a30',cuff:'#f3ead2',cuffW:14,pose:'fist',held:ITEM.marotte(u)}),
+      beard:'',
+      hat:`<g><path d="M90,72 C84,52 70,44 56,54 C66,58 70,68 74,78Z" fill="#c1272d" stroke="#5a1210" stroke-width="1.3"/><path d="M104,62 C104,42 114,28 120,16 C126,28 136,42 136,62Z" fill="#e5b62a" stroke="#6a4f0c" stroke-width="1.3"/><path d="M150,72 C156,52 170,44 184,54 C174,58 170,68 166,78Z" fill="#1e8a8a" stroke="#0d4a4a" stroke-width="1.3"/>
+        <path d="M88,66 Q120,56 152,66 L154,80 Q120,70 86,80Z" fill="#c1272d" stroke="#5a1210" stroke-width="1.3"/><path d="M87,72 Q120,62 153,72" fill="none" stroke="#e5b62a" stroke-width="2.6" stroke-dasharray="5 4"/>
+        <circle cx="56" cy="55" r="5.4" fill="${gold(u)}" stroke="#7a5416"/><circle cx="120" cy="15" r="5.4" fill="${gold(u)}" stroke="#7a5416"/><circle cx="184" cy="55" r="5.4" fill="${gold(u)}" stroke="#7a5416"/></g>`
+    };},
+    caballero(u,c){ return {
+      hair:hair('short',['#3a271a','#1e130b']),
+      back:`<path d="M58,182 C36,250 36,330 44,394 L196,394 C204,330 204,250 182,182Z" fill="#7a1f1a" stroke="#3d0f0c" stroke-width="1.4"/>`,
+      lower:`<path d="M84,336 L116,336 L114,388 L82,388Z" fill="url(#${u}steel)" stroke="#39424c" stroke-width="1.2"/><path d="M124,336 L156,336 L158,388 L126,388Z" fill="url(#${u}steel)" stroke="#39424c" stroke-width="1.2"/><path d="M78,388 L118,388 L120,398 L74,398Z M122,388 L162,388 L166,398 L120,398Z" fill="#3a2a1e" stroke="#1e140c" stroke-width="1.2"/>`,
+      body:`<path d="M120,168 C96,168 74,172 62,184 C54,192 54,210 56,232 L62,340 L178,340 L184,232 C186,210 186,192 178,184 C166,172 144,168 120,168Z" fill="url(#${u}steel)" stroke="#39424c" stroke-width="1.6"/>
+        <path d="M84,196 Q120,214 156,196 M88,226 Q120,242 152,226" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2"/><path d="M120,200 L120,246" stroke="#4a5461" stroke-width="1.4" opacity=".6"/>
+        <path d="M150,180 C176,190 184,220 184,250 L178,340 L150,340Z" fill="#000" opacity=".2"/>
+        <path d="M64,238 L176,238 L182,262 L58,262Z" fill="#5a4636" stroke="#2a1c12" stroke-width="1.2"/><rect x="108" y="240" width="24" height="20" rx="3" fill="${gold(u)}" stroke="#7a5416" stroke-width="1.2"/>
+        <path d="M84,262 L156,262 L164,346 L76,346Z" fill="#a52a24" stroke="#4a100c" stroke-width="1.4"/><path d="M84,262 L96,346 M156,262 L144,346" stroke="#000" stroke-opacity=".2" stroke-width="2"/>
+        <g transform="translate(120,300)"><rect x="-4" y="-22" width="8" height="46" fill="${gold(u)}" stroke="#7a5416" stroke-width="1"/><rect x="-16" y="-10" width="32" height="8" fill="${gold(u)}" stroke="#7a5416" stroke-width="1"/></g>
+        <path d="M76,346 L164,346 L160,356 L80,356Z" fill="${gold(u)}" opacity=".85"/>`,
+      front:`<path d="M92,166 L104,178 Q120,188 136,178 L148,166 L156,180 Q120,200 84,180Z" fill="url(#${u}steel)" stroke="#39424c" stroke-width="1.4"/>`,
+      defs:lin(u+'steel',[[0,'#e6ecf3'],[.45,'#a5b0be'],[1,'#56616f']]),
+      armL:arm(u,c,'L',{glove:'#7a8593',cuff:'#5a4636',cuffW:15,pose:'fist',pauldron:`<ellipse cx="64" cy="190" rx="26" ry="17" fill="url(#${u}steel)" stroke="#39424c" stroke-width="1.4"/><path d="M42,192 Q64,204 86,192" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"/>`}),
+      armR:arm(u,c,'R',{glove:'#7a8593',cuff:'#5a4636',cuffW:15,pose:'fist',held:ITEM.sword(u),pauldron:`<ellipse cx="176" cy="190" rx="26" ry="17" fill="url(#${u}steel)" stroke="#39424c" stroke-width="1.4"/><path d="M154,192 Q176,204 198,192" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.6"/>`}),
+      beard:`<path d="M92,116 C94,136 104,146 120,148 C136,146 146,136 148,116 C146,124 142,126 136,126 C130,124 110,124 104,126 C98,126 94,124 92,116Z" fill="#3a271a" opacity=".32"/>`,
+      hat:`<path d="M96,80 L104,92" stroke="#b5544a" stroke-width="2" stroke-linecap="round" opacity=".85"/><path d="M97,86 L101,80" stroke="#e8c8b0" stroke-width="1.2" opacity=".7"/>`
+    };},
+    maestro(u,c){ return {
+      hair:hair('elder',['#f3f1ec','#c9c5bb']),
+      back:`<path d="M52,178 C30,240 30,330 38,394 L202,394 C210,330 210,240 188,178Z" fill="#243a58" stroke="#16263a" stroke-width="1.4"/>`,
+      body:longRobe(u,c,`<path d="M56,246 Q120,258 184,246 L184,254 Q120,266 56,254Z" fill="#d8b458" stroke="#7a5f1e" stroke-width="1"/><path d="M120,254 C118,290 114,320 112,346" fill="none" stroke="#d8b458" stroke-width="3"/><circle cx="112" cy="348" r="4" fill="#d8b458"/>`),
+      front:`<path d="M62,186 Q120,160 178,186 L182,214 Q120,196 58,214Z" fill="#efe6cf" stroke="#a8996f" stroke-width="1.2"/><path d="M62,186 Q120,160 178,186" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.5"/>`,
+      armL:arm(u,c,'L',{cuff:'#efe6cf',pose:'open',held:ITEM.book(u)}),
+      armR:arm(u,c,'R',{cuff:'#efe6cf',pose:'point'}),
+      beard:`<path fill-rule="evenodd" d="M85,110 C82,144 98,176 120,200 C142,176 158,144 155,110 C150,122 142,126 134,124 C128,122 124,121 120,121 C116,121 112,122 106,124 C98,126 90,122 85,110Z M108,131 Q120,127 132,131 Q120,143 108,131Z" fill="#f6f4ef" stroke="#c3beb2" stroke-width="1"/>
+        <g fill="none" stroke="#c3beb2" stroke-width="1" opacity=".85"><path d="M96,140 Q100,168 110,190"/><path d="M112,146 Q114,172 118,196"/><path d="M144,140 Q140,168 130,190"/><path d="M128,146 Q126,172 122,196"/></g>
+        <path d="M102,124 C110,118 118,122 120,126 C122,122 130,118 138,124 C132,132 124,128 120,128 C116,128 108,132 102,124Z" fill="#f6f4ef" stroke="#c3beb2" stroke-width="1"/>`,
+      hat:`<g><path d="M90,62 C90,44 104,36 122,36 C142,36 154,46 152,64 Q122,56 90,62Z" fill="#2c4a78" stroke="#16263a" stroke-width="1.3"/><path d="M90,62 Q122,54 152,64 L151,72 Q122,64 91,71Z" fill="#1d3358" stroke="#16263a" stroke-width="1"/><path d="M150,50 Q160,54 158,70" fill="none" stroke="${gold(u)}" stroke-width="2.4"/><circle cx="158" cy="72" r="3.6" fill="${gold(u)}"/></g>`
+    };},
+    aprendiz(u,c){ return {
+      hair:hair('messy',['#6a4630','#3e2718']),
+      back:`<path d="M60,176 C46,220 46,300 54,346 L186,346 C194,300 194,220 180,176Z" fill="#3f7a4a" stroke="#1e3f26" stroke-width="1.4"/>`,
+      body:longRobe(u,c,`<path d="M56,246 Q120,258 184,246 L184,256 Q120,268 56,256Z" fill="#5c4a30" stroke="#33281a" stroke-width="1"/><rect x="110" y="246" width="20" height="14" rx="3" fill="${gold(u)}" stroke="#7a5416"/>`).replace(hem(u,c),''),
+      front:`<path d="M62,182 Q120,158 178,182 L186,222 Q166,238 150,224 Q120,240 90,224 Q74,238 54,222Z" fill="#4c9058" stroke="#1e3f26" stroke-width="1.3"/><path d="M92,178 Q120,196 148,178" fill="none" stroke="#2a5634" stroke-width="2"/><path d="M84,172 L156,300 L164,292 L96,170Z" fill="#6b4a25" opacity=".95"/>`,
+      armL:arm(u,c,'L',{sleeve:'#4c9058',sleeveD:'#1e3f26',cuff:'#efe2c2',pose:'open'}),
+      armR:arm(u,c,'R',{sleeve:'#4c9058',sleeveD:'#1e3f26',cuff:'#efe2c2',pose:'open'}),
+      beard:`<g fill="#b9764c" opacity=".55"><circle cx="98" cy="111" r="1.1"/><circle cx="103" cy="114" r="1"/><circle cx="108" cy="111" r="1"/><circle cx="132" cy="111" r="1"/><circle cx="137" cy="114" r="1.1"/><circle cx="142" cy="111" r="1"/></g>`,
+      hat:''
+    };}
+  };
+  const HAIR_C={rey:['#f2f0ea','#c3beb2']};
+
+  /* ── ensamblado ── */
+  function build(id,opts){
+    opts=opts||{};
+    const c=SPEC[id]; if(!c||!BUILD[id]) return '';
+    const u='ch'+(++counter)+'_', p=BUILD[id](u,c);
+    const vb=opts.portrait?'44 28 152 150':'0 0 240 404';
+    const dl=(counter%7)*.6;
+    const defs=`<defs>
+      ${lin(u+'sk',[[0,c.skin[0]],[.55,c.skin[1]],[1,c.skin[2]]])}
+      ${lin(u+'rb',[[0,c.robe[0]],[.45,c.robe[1]],[1,c.robe[2]]])}
+      ${lin(u+'gold',[[0,'#fbe7a1'],[.5,'#d9a941'],[1,'#8f6420']],1)}
+      ${p.defs||''}
+      <radialGradient id="${u}face" cx=".38" cy=".32" r=".85"><stop offset="0" stop-color="${c.skin[0]}"/><stop offset=".6" stop-color="${c.skin[1]}"/><stop offset="1" stop-color="${c.skin[2]}"/></radialGradient>
+      ${lin(u+'fx',[[0,'#000',0],[1,'#000',.28]])}
+    </defs>`;
+    const faceShape=`M120,58 C144,58 156,78 156,100 C156,124 144,146 120,150 C96,146 84,124 84,100 C84,78 96,58 120,58Z`;
+    const head=`<g class="head" data-head style="animation-delay:-${dl}s">
+      ${p.hair.back}
+      <ellipse cx="84" cy="104" rx="6.5" ry="10.5" fill="url(#${u}sk)" stroke="${OL}" stroke-width="1.1"/><ellipse cx="156" cy="104" rx="6.5" ry="10.5" fill="url(#${u}sk)" stroke="${OL}" stroke-width="1.1"/>
+      <path d="${faceShape}" fill="url(#${u}face)" stroke="${OL}" stroke-width="1.3"/>
+      <path d="${faceShape}" fill="url(#${u}fx)"/>
+      ${ageLines(c.age,c.skin)}
+      <g class="face-dyn" data-face></g>
+      <path d="M120,96 Q116,110 113,116 Q120,121 127,116" fill="none" stroke="${c.skin[2]}" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M121.5,98 Q124,108 125,114" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.6" stroke-linecap="round"/>
+      ${p.beard||''}${p.hair.front}${p.hat||''}
+    </g>`;
+    const inner=`
+      <ellipse class="shadow" cx="120" cy="396" rx="88" ry="9" fill="#000" opacity=".38"/>
+      <g class="rig" style="animation-delay:-${dl}s">
+        ${p.back||''}${p.lower||''}
+        <g class="torso">${p.body}${neck(u,c)}${p.front||''}</g>
+        ${p.armL}${p.armR}
+        ${head}
+      </g>`;
+    return `<svg class="char-svg" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">${defs}${inner}</svg>`;
+  }
+  function setMood(root,id,mood){
+    const c=SPEC[id]; if(!c) return;
+    const m=MOODS[mood]?mood:'neutral';
+    root.dataset.mood=m;
+    root.querySelectorAll('[data-face]').forEach(g=>{ g.innerHTML=face(c,'',m,id); });
+  }
+  return {build,setMood,SPEC,MOODS};
+})();
+
+</script>
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   REINO DE ALDEMAR — motor de la aplicación
+   Módulos: Utils · Store · Settings · Sound · Music · Voice · FX · Cast
+            Dialogue · Grade · GameState · Chronicle · Modals · UI · App
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+
+/* ── Utils ── */
+const $=id=>document.getElementById(id);
+const $$=(sel,root)=>Array.from((root||document).querySelectorAll(sel));
+const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
+const fmt=n=>(Number.isFinite(n)?n:0).toFixed(2);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const CANCEL=Symbol('cancel');            /* centinela para escenas interrumpidas */
+function el(tag,cls,text){ const e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
+
+/* ── Store: localStorage tolerante a datos corruptos o no disponibles ── */
+const Store=(function(){
+  let warned=false;
+  function read(key){
+    let raw=null;
+    try{ raw=localStorage.getItem(key); }catch(e){ return null; }
+    if(raw==null) return null;
+    try{ return JSON.parse(raw); }catch(e){ return null; }   /* JSON corrupto → valores por defecto */
+  }
+  function write(key,val){
+    try{ localStorage.setItem(key,JSON.stringify(val)); return true; }
+    catch(e){ if(!warned){ warned=true; UI.toast('No se pudo guardar en este navegador. Tu progreso durará solo esta sesión.','warn'); } return false; }
+  }
+  function remove(key){ try{ localStorage.removeItem(key); }catch(e){ /* almacenamiento no disponible */ } }
+  return {read,write,remove};
+})();
+
+/* ── Settings: validadas, con valores seguros y suscripción ── */
+const Settings=(function(){
+  const KEY='aldemar_settings_v2', OLD='aldemar_settings_v1';
+  const osReduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DEF={musicOn:false,musicVol:55,sfxOn:true,sfxVol:70,masterMute:false,voiceOn:false,voiceVol:85,voiceRate:95,
+    anim:osReduce?'reduced':'full',visual:'day',textSize:'normal',autoMood:true};
+  const RULES={musicOn:'b',sfxOn:'b',masterMute:'b',voiceOn:'b',autoMood:'b',
+    musicVol:[0,100],sfxVol:[0,100],voiceVol:[0,100],voiceRate:[60,140],
+    anim:['full','reduced','off'],visual:['day','night','torch'],textSize:['normal','large']};
+  function clean(src){
+    const out=Object.assign({},DEF);
+    if(!src||typeof src!=='object'||Array.isArray(src)) return out;
+    Object.keys(RULES).forEach(k=>{
+      const v=src[k], r=RULES[k];
+      if(r==='b'){ if(typeof v==='boolean') out[k]=v; }
+      else if(typeof r[0]==='number'){ if(typeof v==='number'&&Number.isFinite(v)) out[k]=Math.round(clamp(v,r[0],r[1])); }
+      else if(r.indexOf(v)>=0) out[k]=v;
+    });
+    return out;
+  }
+  let s=clean(Store.read(KEY)||Store.read(OLD));
+  const listeners=new Set();
+  function apply(){
+    const h=document.documentElement;
+    h.dataset.anim=s.anim; h.dataset.visual=s.visual; h.dataset.text=s.textSize;
+  }
+  function notify(){ listeners.forEach(fn=>fn(s)); }
+  function get(k){ return s[k]; }
+  function set(k,v){ if(!(k in RULES)) return; s=clean(Object.assign({},s,{[k]:v})); Store.write(KEY,s); apply(); notify(); }
+  function reset(){ s=clean(null); Store.write(KEY,s); apply(); notify(); }
+  function subscribe(fn){ listeners.add(fn); }
+  apply();
+  return {get,set,reset,subscribe,all:()=>s};
+})();
+
+/* ═══════════════ Sound: síntesis con Web Audio (sin archivos externos) ═══════════════ */
+const Sound=(function(){
+  let ctx=null,master=null,musicBus=null,sfxBus=null,verb=null,sfxSend=null,noiseBuf=null,ready=false,failed=false;
+  const ksCache=new Map();
+
+  function impulse(sec,decay){
+    const sr=ctx.sampleRate,len=Math.floor(sr*sec),b=ctx.createBuffer(2,len,sr);
+    for(let c=0;c<2;c++){ const d=b.getChannelData(c); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,decay); }
+    return b;
+  }
+  function ensure(){
+    if(failed) return false;
+    if(!ready){
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC){ failed=true; return false; }
+      try{ ctx=new AC(); }catch(e){ failed=true; return false; }
+      master=ctx.createGain(); master.connect(ctx.destination);
+      musicBus=ctx.createGain(); musicBus.connect(master);
+      sfxBus=ctx.createGain(); sfxBus.connect(master);
+      verb=ctx.createConvolver(); verb.buffer=impulse(1.9,2.6);
+      const vg=ctx.createGain(); vg.gain.value=.26; verb.connect(vg); vg.connect(master);
+      sfxSend=ctx.createGain(); sfxSend.gain.value=.4; sfxSend.connect(verb);
+      const n=ctx.sampleRate; noiseBuf=ctx.createBuffer(1,n,n);
+      const d=noiseBuf.getChannelData(0); for(let i=0;i<n;i++) d[i]=Math.random()*2-1;
+      ready=true; applyVolumes();
+    }
+    if(ctx.state==='suspended') ctx.resume().catch(()=>{ /* el navegador exige un gesto del usuario: se reintenta en el siguiente */ });
+    return true;
+  }
+  function applyVolumes(){
+    if(!ready) return; const t=ctx.currentTime;
+    master.gain.setTargetAtTime(Settings.get('masterMute')?0:1,t,.03);
+    musicBus.gain.setTargetAtTime(Settings.get('musicVol')/100*.9,t,.05);
+    sfxBus.gain.setTargetAtTime(Settings.get('sfxOn')?Settings.get('sfxVol')/100:0,t,.03);
+  }
+  Settings.subscribe(applyVolumes);
+  const mtof=m=>440*Math.pow(2,(m-69)/12);
+
+  /* cuerda pulsada (Karplus-Strong precalculada y en caché): timbre de laúd/arpa */
+  function ksBuffer(freq){
+    const key=Math.round(freq*2);
+    if(ksCache.has(key)) return ksCache.get(key);
+    const sr=ctx.sampleRate,n=Math.floor(sr*2.2),N=Math.max(2,Math.round(sr/freq)),ring=new Float32Array(N);
+    let last=0; for(let i=0;i<N;i++){ last=last*.55+(Math.random()*2-1)*.45; ring[i]=last; }
+    const buf=ctx.createBuffer(1,n,sr),d=buf.getChannelData(0); let idx=0;
+    for(let i=0;i<n;i++){ const nx=(idx+1)%N; d[i]=ring[idx]*2.2; ring[idx]=(ring[idx]+ring[nx])*.5*.9968; idx=nx; }
+    if(ksCache.size>90) ksCache.delete(ksCache.keys().next().value);
+    ksCache.set(key,buf); return buf;
+  }
+  function pluck(freq,t,dur,vol,out,send){
+    if(!ready) return;
+    const src=ctx.createBufferSource(); src.buffer=ksBuffer(freq);
+    const g=ctx.createGain(); g.gain.setValueAtTime(vol,t); g.gain.setTargetAtTime(0,t+Math.max(.06,dur*.6),Math.max(.06,dur*.2));
+    src.connect(g); g.connect(out); if(send) g.connect(send);
+    src.start(t); src.stop(t+dur+1.1);
+  }
+  function flute(freq,t,dur,vol,out,send){
+    if(!ready) return;
+    const o=ctx.createOscillator(),o2=ctx.createOscillator(),g=ctx.createGain(),g2=ctx.createGain(),lfo=ctx.createOscillator(),lg=ctx.createGain();
+    o.type='sine'; o.frequency.value=freq; o2.type='triangle'; o2.frequency.value=freq*2; g2.gain.value=.1;
+    lfo.frequency.value=5.1; lg.gain.setValueAtTime(0,t); lg.gain.linearRampToValueAtTime(freq*.006,t+dur*.5); lfo.connect(lg); lg.connect(o.frequency);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.09); g.gain.setValueAtTime(vol*.85,t+dur*.7); g.gain.linearRampToValueAtTime(0,t+dur);
+    const nz=ctx.createBufferSource(); nz.buffer=noiseBuf; nz.loop=true;
+    const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=freq*2.2; bp.Q.value=4;
+    const ng=ctx.createGain(); ng.gain.setValueAtTime(0,t); ng.gain.linearRampToValueAtTime(vol*.16,t+.06); ng.gain.linearRampToValueAtTime(0,t+dur);
+    o.connect(g); o2.connect(g2); g2.connect(g); nz.connect(bp); bp.connect(ng); ng.connect(g);
+    g.connect(out); if(send) g.connect(send);
+    lfo.start(t); o.start(t); o2.start(t); nz.start(t);
+    const end=t+dur+.05; lfo.stop(end); o.stop(end); o2.stop(end); nz.stop(end);
+  }
+  function bell(freq,t,dur,vol,out,send){
+    if(!ready) return;
+    [1,2.4,3.8].forEach((m,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain(); o.type='sine'; o.frequency.value=freq*m;
+      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol/(i+1.3),t+.012); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+      o.connect(g); g.connect(out); if(send) g.connect(send); o.start(t); o.stop(t+dur+.1);
+    });
+  }
+  function drum(t,vol,out,pitch){
+    if(!ready) return; pitch=pitch||120;
+    const nz=ctx.createBufferSource(); nz.buffer=noiseBuf;
+    const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=pitch*2; bp.Q.value=.8;
+    const g=ctx.createGain(); g.gain.setValueAtTime(vol*.55,t); g.gain.exponentialRampToValueAtTime(.0001,t+.22);
+    nz.connect(bp); bp.connect(g); g.connect(out); nz.start(t,Math.random()*.5,.3);
+    const o=ctx.createOscillator(),og=ctx.createGain(); o.type='sine';
+    o.frequency.setValueAtTime(pitch*1.5,t); o.frequency.exponentialRampToValueAtTime(pitch*.6,t+.16);
+    og.gain.setValueAtTime(vol,t); og.gain.exponentialRampToValueAtTime(.0001,t+.3);
+    o.connect(og); og.connect(out); o.start(t); o.stop(t+.34);
+  }
+  function pad(freq,t,dur,vol,out,send){
+    if(!ready) return;
+    const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=780;
+    const g=ctx.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+dur*.35); g.gain.linearRampToValueAtTime(0,t+dur);
+    [-6,6].forEach(c=>{ const o=ctx.createOscillator(); o.type='triangle'; o.frequency.value=freq; o.detune.value=c; o.connect(lp); o.start(t); o.stop(t+dur+.05); });
+    lp.connect(g); g.connect(out); if(send) g.connect(send);
+  }
+  function brass(freq,t,dur,vol,out){
+    if(!ready) return;
+    const o=ctx.createOscillator(),lp=ctx.createBiquadFilter(),g=ctx.createGain(); o.type='sawtooth'; o.frequency.value=freq;
+    lp.type='lowpass'; lp.frequency.setValueAtTime(500,t); lp.frequency.linearRampToValueAtTime(2200,t+.09); lp.frequency.linearRampToValueAtTime(900,t+dur);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.05); g.gain.setValueAtTime(vol*.8,t+dur*.7); g.gain.linearRampToValueAtTime(0,t+dur);
+    o.connect(lp); lp.connect(g); g.connect(out); g.connect(sfxSend); o.start(t); o.stop(t+dur+.05);
+  }
+  function sweep(t,dur,vol,out,f0,f1){
+    if(!ready) return;
+    const nz=ctx.createBufferSource(); nz.buffer=noiseBuf; nz.loop=true;
+    const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=1.1; bp.frequency.setValueAtTime(f0,t); bp.frequency.linearRampToValueAtTime(f1,t+dur);
+    const g=ctx.createGain(); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    nz.connect(bp); bp.connect(g); g.connect(out); nz.start(t); nz.stop(t+dur+.02);
+  }
+
+  /* efectos: solo suenan si el usuario los tiene activados; nunca lanzan errores */
+  const BLIP={rey:150,bufon:420,caballero:190,escriba:260,consejero:210,maestro:230,aprendiz:330};
+  function fx(fn){ return function(){ if(!Settings.get('sfxOn')||!ensure()) return; fn.apply(null,arguments); }; }
+  const sfx={
+    click:fx(()=>{ const t=ctx.currentTime; drum(t,.16,sfxBus,700); }),
+    page:fx(()=>{ sweep(ctx.currentTime,.2,.14,sfxBus,3000,1400); }),
+    parchment:fx(()=>{ sweep(ctx.currentTime,.4,.16,sfxBus,2600,600); }),
+    bell:fx(()=>{ bell(880,ctx.currentTime,1.2,.2,sfxBus,sfxSend); }),
+    seal:fx(()=>{ const t=ctx.currentTime; drum(t,.5,sfxBus,90); bell(320,t+.04,.5,.14,sfxBus,sfxSend); }),
+    coin:fx(()=>{ bell(2300+Math.random()*800,ctx.currentTime,.5,.05,sfxBus,sfxSend); }),
+    tick:fx(()=>{ pluck(1500,ctx.currentTime,.05,.03,sfxBus); }),
+    blip:fx(who=>{ const base=BLIP[who]||220; pluck(base*(1+Math.random()*.25),ctx.currentTime,.05,.05,sfxBus); }),
+    drumroll:fx(sec=>{ const t0=ctx.currentTime,n=Math.floor(sec/.09); for(let i=0;i<n;i++) drum(t0+i*.09,.1+i/n*.2,sfxBus,120+i*3); }),
+    victory:fx(()=>{ const t0=ctx.currentTime; [[60,0],[64,.14],[67,.28],[72,.42]].forEach(([m,d])=>brass(mtof(m),t0+d,d===.42?.9:.3,.1,sfxBus)); bell(mtof(84),t0+.42,1.4,.12,sfxBus,sfxSend); }),
+    defeat:fx(()=>{ const t0=ctx.currentTime; [57,55,52].forEach((m,i)=>pluck(mtof(m),t0+i*.24,.6,.18,sfxBus,sfxSend)); drum(t0+.6,.5,sfxBus,80); }),
+    levelup:fx(()=>{ const t0=ctx.currentTime; [72,76,79,84].forEach((m,i)=>bell(mtof(m),t0+i*.11,.9,.13,sfxBus,sfxSend)); })
+  };
+
+  return {ensure,get ready(){return ready;},get failed(){return failed;},get ctx(){return ctx;},get musicBus(){return musicBus;},get verb(){return verb;},
+    pluck,flute,bell,drum,pad,mtof,sfx,supported:()=>!failed&&!!(window.AudioContext||window.webkitAudioContext)};
+})();
+
+/* ═══════════════ Music: pistas ambientales generadas, con parada limpia ═══════════════ */
+const Music=(function(){
+  const STEP=.3, LOOP=32;
+  const MEL_A=[[0,0,2],[2,2,1],[3,4,1],[4,5,2],[6,7,2],[8,9,1],[9,7,1],[10,5,2],[12,4,2],[14,2,1],[15,0,1],[16,0,2],[18,4,2],[20,5,1],[21,7,1],[22,9,2],[24,11,2],[26,9,1],[27,7,1],[28,5,2],[30,2,2]];
+  const MEL_B=[[0,7,3],[3,5,1],[4,4,2],[6,2,2],[8,0,3],[11,2,1],[12,4,2],[14,5,2],[16,7,2],[18,9,1],[19,7,1],[20,5,2],[22,4,2],[24,2,3],[27,4,1],[28,2,2],[30,0,2]];
+  const BASS=[[0,-12],[8,-5],[16,-12],[24,-7]];
+  const INNER=[[2,-5],[6,-5],[10,-5],[14,-5],[18,-8],[22,-8],[26,-5],[30,-5]];
+  const MINOR={4:3,9:8,11:10};
+  const tone=(semi,minor)=>{ if(!minor) return semi; const pc=((semi%12)+12)%12; return MINOR[pc]!==undefined?Math.floor(semi/12)*12+MINOR[pc]:semi; };
+  const TRACKS=[
+    {id:'castillo',name:'Castillo Real',root:60,tempo:1.00,minor:false,mel:MEL_A,lute:true,flute:true,bell:true,drum:false,pad:true,vol:.9},
+    {id:'taberna',name:'Taberna del Reino',root:62,tempo:.62,minor:false,mel:MEL_B,lute:true,flute:false,bell:false,drum:true,pad:false,vol:1},
+    {id:'estudio',name:'Sala de Estudio',root:57,tempo:1.35,minor:false,mel:MEL_B,lute:false,flute:true,bell:false,drum:false,pad:true,vol:.75},
+    {id:'misterio',name:'Corredores del Misterio',root:55,tempo:1.7,minor:true,mel:MEL_A,lute:true,flute:false,bell:false,drum:false,pad:true,vol:.7},
+    {id:'tension',name:'El Rey Delibera',root:52,tempo:2.1,minor:true,mel:MEL_B,lute:false,flute:false,bell:false,drum:true,pad:true,vol:.55},
+    {id:'batalla',name:'Redobles de Batalla',root:57,tempo:.5,minor:true,mel:MEL_A,lute:true,flute:false,bell:false,drum:true,pad:false,vol:1},
+    {id:'epica',name:'Gesta Épica',root:60,tempo:.72,minor:false,mel:MEL_A,lute:true,flute:true,bell:true,drum:true,pad:true,vol:1},
+    {id:'victoria',name:'Fanfarria de Victoria',root:64,tempo:.55,minor:false,mel:MEL_B,lute:false,flute:true,bell:true,drum:true,pad:false,vol:1},
+    {id:'celebracion',name:'Celebración Real',root:60,tempo:.6,minor:false,mel:MEL_B,lute:true,flute:true,bell:true,drum:true,pad:true,vol:1}
+  ];
+  let idx=0,playing=false,bus=null,timer=0,loopStart=0,loopDur=1,raf=0,panelOpen=false,autoArmed=false;
+
+  function scheduleLoop(){
+    if(!playing||!bus||!Sound.ready) return;
+    const S=Sound,cfg=TRACKS[idx],step=STEP*cfg.tempo,t0=S.ctx.currentTime+.06,v=cfg.vol*.55;
+    loopStart=t0; loopDur=step*LOOP;
+    const out=bus.out,send=bus.send;
+    if(cfg.lute) cfg.mel.forEach(([p,s,l])=>S.pluck(S.mtof(cfg.root+tone(s,cfg.minor)+12),t0+p*step,Math.max(.25,l*step*.9),v*.5,out,send));
+    if(cfg.flute) cfg.mel.forEach(([p,s,l],i)=>{ if(i%2===0) S.flute(S.mtof(cfg.root+tone(s,cfg.minor)+(cfg.id==='estudio'?0:12)),t0+p*step,l*step*1.5,v*.32,out,send); });
+    BASS.forEach(([p,s])=>S.pluck(S.mtof(cfg.root+tone(s,cfg.minor)),t0+p*step,step*3.4,v*.65,out,send));
+    if(cfg.pad) BASS.forEach(([p,s])=>{ S.pad(S.mtof(cfg.root+tone(s,cfg.minor)+12),t0+p*step,step*8,v*.16,out,send); });
+    if(cfg.bell) INNER.forEach(([p,s])=>S.bell(S.mtof(cfg.root+tone(s,cfg.minor)+24),t0+p*step,step*2,v*.2,out,send));
+    if(cfg.drum) [0,8,16,24].forEach(p=>S.drum(t0+p*step,v*.5,out,cfg.minor?95:120));
+    timer=setTimeout(scheduleLoop,Math.max(200,loopDur*1000-60));
+  }
+  function openBus(){
+    const S=Sound,t=S.ctx.currentTime;
+    const out=S.ctx.createGain(),send=S.ctx.createGain();
+    out.gain.setValueAtTime(0,t); out.gain.linearRampToValueAtTime(1,t+.5); send.gain.value=.5;
+    out.connect(S.musicBus); send.connect(S.verb); bus={out,send};
+  }
+  function closeBus(){
+    clearTimeout(timer); timer=0;
+    if(!bus||!Sound.ready){ bus=null; return; }
+    const b=bus,t=Sound.ctx.currentTime; bus=null;
+    b.out.gain.cancelScheduledValues(t); b.out.gain.setTargetAtTime(0,t,.12); b.send.gain.setTargetAtTime(0,t,.12);
+    setTimeout(()=>{ b.out.disconnect(); b.send.disconnect(); },1200);   /* silencia también las notas ya programadas */
+  }
+  function restartIfPlaying(){ if(playing){ closeBus(); openBus(); scheduleLoop(); } }
+
+  function status(){
+    if(!Sound.supported()) return 'Audio no disponible en este navegador';
+    if(playing) return Sound.ready&&Sound.ctx.state!=='running'?'Toca la pantalla para activar el sonido':'Reproduciendo';
+    if(Settings.get('musicOn')&&autoArmed) return 'Se reanudará al tocar la pantalla';
+    return 'En pausa';
+  }
+  function updateUI(){
+    const cfg=TRACKS[idx];
+    $('mpTrack').textContent=cfg.name; $('mpStatus').textContent=status();
+    const btn=$('mpPlay'); btn.setAttribute('aria-label',playing?'Pausar':'Reproducir');
+    btn.querySelector('use').setAttribute('href',playing?'#i-pause':'#i-play');
+    const on=playing&&!(Sound.ready&&Sound.ctx.state!=='running');
+    document.body.classList.toggle('music-on',on);
+    $('musicBtn').setAttribute('aria-label',on?'Reproductor de música (sonando)':'Reproductor de música');
+    const unsupported=!Sound.supported();
+    ['mpPlay','mpPrev','mpNext'].forEach(id=>{ $(id).disabled=unsupported; });
+  }
+  function tick(){
+    raf=0; if(!playing||!panelOpen||!Sound.ready) return;
+    const p=clamp((Sound.ctx.currentTime-loopStart)/loopDur,0,1);
+    $('mpFill').style.width=(p*100).toFixed(1)+'%';
+    raf=requestAnimationFrame(tick);
+  }
+  function kick(){ if(!raf&&playing&&panelOpen) raf=requestAnimationFrame(tick); }
+
+  function play(){
+    if(playing) return true;
+    if(!Sound.ensure()){ Settings.set('musicOn',false); updateUI(); UI.toast('Este navegador no permite reproducir música.','warn'); return false; }
+    playing=true; autoArmed=false; Settings.set('musicOn',true);
+    openBus(); scheduleLoop(); updateUI(); kick();
+    return true;
+  }
+  function pause(){ playing=false; autoArmed=false; Settings.set('musicOn',false); closeBus(); $('mpFill').style.width='0%'; updateUI(); }
+  function toggle(){ playing?pause():play(); }
+  function go(delta){ idx=(idx+delta+TRACKS.length)%TRACKS.length; restartIfPlaying(); updateUI(); }
+  function setMood(id){
+    if(!Settings.get('autoMood')) return;
+    const i=TRACKS.findIndex(t=>t.id===id); if(i<0||i===idx) return;
+    idx=i; restartIfPlaying(); updateUI();
+  }
+  function setPanelOpen(v){ panelOpen=v; kick(); }
+  /* si la música estaba activada, arranca en el primer gesto (los navegadores bloquean el autoplay) */
+  function armAutostart(){
+    if(!Settings.get('musicOn')||playing||!Sound.supported()) return;
+    autoArmed=true;
+    const start=()=>{ removeEventListener('pointerdown',start,true); removeEventListener('keydown',start,true); if(autoArmed&&Settings.get('musicOn')) play(); };
+    addEventListener('pointerdown',start,true); addEventListener('keydown',start,true);
+  }
+  return {play,pause,toggle,next:()=>go(1),prev:()=>go(-1),setMood,updateUI,setPanelOpen,armAutostart,get playing(){return playing;}};
+})();
+
+/* ═══════════════ Voice: síntesis de voz opcional ═══════════════ */
+const Voice=(function(){
+  const supported='speechSynthesis' in window&&'SpeechSynthesisUtterance' in window;
+  const PROFILES={rey:{pitch:.6,rate:.9},bufon:{pitch:1.5,rate:1.2},caballero:{pitch:.8,rate:.98},escriba:{pitch:1.05,rate:.92},consejero:{pitch:.75,rate:.88},maestro:{pitch:.85,rate:.95},narrador:{pitch:1,rate:1}};
+  let voices=[],current=null;
+  function load(){ voices=supported?(speechSynthesis.getVoices()||[]):[]; }
+  if(supported){ load(); if(speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged',load); }
+  function pickVoice(){
+    return voices.find(v=>/^es[-_]/i.test(v.lang)&&/es[-_](es|mx|ar|us)/i.test(v.lang))||voices.find(v=>/^es/i.test(v.lang))||null;
+  }
+  function stop(){ if(supported) speechSynthesis.cancel(); current=null; }
+  function speak(text,who,force){
+    if(!supported||!text) return;
+    if(!force&&(!Settings.get('voiceOn')||Settings.get('masterMute'))) return;
+    stop();
+    const p=PROFILES[who]||PROFILES.narrador,u=new SpeechSynthesisUtterance(text),v=pickVoice();
+    if(v){ u.voice=v; u.lang=v.lang; } else u.lang='es-ES';
+    u.pitch=p.pitch; u.rate=clamp(Settings.get('voiceRate')/100*p.rate,.5,2); u.volume=Settings.get('voiceVol')/100;
+    u.onend=u.onerror=()=>{ if(current===u) current=null; };
+    current=u; speechSynthesis.speak(u);
+  }
+  Settings.subscribe(()=>{ if(Settings.get('masterMute')||!Settings.get('voiceOn')) stop(); });
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) stop(); });
+  return {speak,stop,supported,busy:()=>!!current};
+})();
+
+/* ═══════════════ FX: partículas en canvas (con delta-time real y sin NaN) ═══════════════ */
+const FX=(function(){
+  const cv=$('fx'),g=cv.getContext('2d');
+  let W=1,H=1,parts=[],raf=0,last=0;
+  function fit(){
+    const r=cv.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);
+    W=Math.max(1,r.width); H=Math.max(1,r.height);
+    cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); g.setTransform(dpr,0,0,dpr,0,0);
+  }
+  if('ResizeObserver' in window) new ResizeObserver(fit).observe(cv); else addEventListener('resize',fit);
+  fit();
+  const level=()=>Settings.get('anim');
+  function add(p){
+    parts.push(Object.assign({x:0,y:0,vx:0,vy:0,g:0,drag:.01,rot:0,vr:0,life:1,max:1,size:3,delay:0,shape:'rect',ratio:1,color:'#fff'},p));
+    if(!raf){ last=performance.now(); raf=requestAnimationFrame(frame); }
+  }
+  function frame(now){
+    const dt=Math.min(.05,(now-last)/1000); last=now; g.clearRect(0,0,W,H);
+    for(const p of parts){
+      if(p.delay>0){ p.delay-=dt; continue; }
+      const k=Math.pow(1-p.drag,dt*60);
+      p.vy+=p.g*dt; p.vx*=k; p.vy*=k; p.x+=p.vx*dt; p.y+=p.vy*dt; p.rot+=p.vr*dt; p.life-=dt;
+      if(p.life<=0) continue;
+      g.save(); g.translate(p.x,p.y); g.rotate(p.rot); g.globalAlpha=clamp(p.life/p.max*1.6,0,1); g.fillStyle=p.color;
+      if(p.shape==='circle'){ g.beginPath(); g.arc(0,0,p.size,0,Math.PI*2); g.fill(); }
+      else g.fillRect(-p.size/2,-p.size/2,p.size,p.size*p.ratio);
+      g.restore();
+    }
+    parts=parts.filter(p=>p.life>0);
+    if(parts.length) raf=requestAnimationFrame(frame); else{ raf=0; g.clearRect(0,0,W,H); }
+  }
+  const GOLD=['#fbe7a1','#e2b653','#c99a3c','#fff6d6'];
+  const FEAST=['#fbe7a1','#e2b653','#a12522','#2f6b3a','#f4e8c9','#8a53c9'];
+  const amount=n=>level()==='reduced'?Math.ceil(n*.35):n;
+  const on=()=>level()!=='off';
+  function confetti(x,y,n,pal){ if(!on()) return; for(let i=0;i<amount(n);i++){ const a=rnd(0,Math.PI*2),sp=rnd(160,420);
+    add({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-280,g:560,drag:.012,rot:rnd(0,7),vr:rnd(-7,7),life:rnd(1.2,2.1),max:2.1,size:rnd(5,9),ratio:rnd(.4,1),color:pick(pal)}); } }
+  function spark(x,y,n,pal){ if(!on()) return; for(let i=0;i<amount(n);i++){ const a=rnd(0,Math.PI*2),sp=rnd(90,320);
+    add({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:160,drag:.03,life:rnd(.7,1.3),max:1.3,size:rnd(2,4),shape:'circle',color:pick(pal)}); } }
+  function coinRain(n){ if(!on()) return; for(let i=0;i<amount(n);i++)
+    add({x:rnd(0,W),y:-10,vx:rnd(-20,20),vy:rnd(80,160),g:280,drag:0,life:rnd(1.8,2.6),max:2.6,size:rnd(4,6),shape:'circle',color:pick(GOLD),delay:rnd(0,.6)}); }
+  function ash(n){ if(!on()) return; for(let i=0;i<amount(n);i++)
+    add({x:rnd(0,W),y:-10,vx:rnd(-12,12),vy:rnd(30,70),g:10,drag:.004,life:rnd(2.2,3.6),max:3.6,size:rnd(1.5,3),shape:'circle',color:'#7d7263',delay:rnd(0,.8)}); }
+  function clear(){ parts=[]; if(raf){ cancelAnimationFrame(raf); raf=0; } g.clearRect(0,0,W,H); }
+  return {confetti,spark,coinRain,ash,clear,GOLD,FEAST,size:()=>({W,H})};
+})();
+
+/* ═══════════════ Reparto: personajes en escena y retratos ═══════════════ */
+const ROSTER={
+  rey:{name:'Rey Aldemar',role:'Soberano del Reino',bio:'Gobierna con severidad teatral pero justicia real. Decide el veredicto final ante cada pergamino.'},
+  bufon:{name:'Milo el Bufón',role:'Bufón de la corte',bio:'Comenta cada resultado con humor afilado. Nadie sabe si sus bromas ocultan sabiduría.'},
+  caballero:{name:'Sir Halric',role:'Caballero del Reino',bio:'Firme y de pocas palabras. Cree que el esfuerzo importa tanto como el resultado.'},
+  escriba:{name:'Tobías el Escriba',role:'Escriba real',bio:'Recibe y registra cada pergamino con precisión meticulosa antes de que llegue al rey.'},
+  consejero:{name:'Consejero Draven',role:'Consejero real',bio:'Analiza las cifras con ojo crítico y aconseja al rey antes de cada veredicto.'},
+  maestro:{name:'Maestro Elian',role:'Maestro del reino',bio:'Antiguo tutor real. Cree en cada aprendiz, incluso cuando el Consejo es severo.'},
+  aprendiz:{name:'Tú, el Aprendiz',role:'Estudiante del reino',bio:'Quien se presenta ante el Consejo Académico a defender sus puntuaciones.'}
+};
+const Cast=(function(){
+  const SCENE_IDS=['escriba','consejero','rey','bufon','caballero'];
+  const slots={}, portraits={};
+  /* zonas de cada personaje dentro de su casilla (el SVG mide 240×404): cabeza con sombrero o corona, y cuerpo.
+     Sirven para que ningún globo tape una cara ni un cuerpo. */
+  const HEAD={x0:.24,x1:.76,y0:.03,y1:.39}, BODY={x0:.10,x1:.90,y0:.39,y1:1};
+  let layer=null, scene=null;
+  function mount(){
+    const court=$('court'); layer=$('bubbles'); scene=$('scene');
+    SCENE_IDS.forEach(id=>{
+      const s=el('div','slot'); s.dataset.slot=id;
+      const ch=el('div','char'); ch.dataset.char=id; ch.innerHTML=CharArt.build(id); s.appendChild(ch); court.appendChild(s);
+      CharArt.setMood(ch,id,'neutral'); slots[id]={el:s,ch,say:null,sayTimer:0};
+    });
+    /* si cambia el tamaño de la escena (giro de pantalla, ventana), los globos abiertos se recolocan */
+    if('ResizeObserver' in window) new ResizeObserver(relayout).observe(scene); else addEventListener('resize',relayout);
+  }
+  function setMood(id,mood){ const s=slots[id]; if(s) CharArt.setMood(s.ch,id,mood); }
+  function show(id,mood){ const s=slots[id]; if(!s) return; if(mood) setMood(id,mood); s.el.classList.add('on'); }
+  /* quita el globo de un personaje (o de todos): al instante, o con fundido si fade=true */
+  function clearSay(id,fade){
+    (id?[id]:SCENE_IDS).forEach(k=>{
+      const s=slots[k]; if(!s) return; clearTimeout(s.sayTimer);
+      const b=s.say; s.say=null; if(!b) return;
+      if(fade){ b.classList.add('out'); setTimeout(()=>b.remove(),260); } else b.remove();
+    });
+  }
+  function hide(id){ const s=slots[id]; if(!s) return; s.el.classList.remove('on','speaker'); s.ch.classList.remove('speaking'); clearSay(id); }
+  /* al vaciar el salón, cada personaje vuelve a su ánimo neutro: nadie reaparece con la cara de la escena anterior */
+  function hideAll(){ SCENE_IDS.forEach(k=>{ hide(k); setMood(k,'neutral'); }); }
+  function speaking(id,on){
+    const s=slots[id]; if(s){ s.ch.classList.toggle('speaking',!!on); s.el.classList.toggle('speaker',!!on); }
+    const p=portraits[id]; if(p) p.classList.toggle('speaking',!!on);
+  }
+  function clearSpeaking(){ SCENE_IDS.concat(Object.keys(portraits)).forEach(id=>speaking(id,false)); }
+
+  /* ── globos ── */
+  const rectOf=e=>({l:e.offsetLeft,t:e.offsetTop,r:e.offsetLeft+e.offsetWidth,b:e.offsetTop+e.offsetHeight});
+  const overlap=(a,b)=>Math.max(0,Math.min(a.r,b.r)-Math.max(a.l,b.l))*Math.max(0,Math.min(a.b,b.b)-Math.max(a.t,b.t));
+  /* cabeza y cuerpo de un personaje en píxeles de la escena; se lee del layout, así que no depende de la transición de entrada */
+  function zones(id){
+    const s=slots[id].el, w=s.offsetWidth, h=s.offsetHeight, x=s.offsetLeft-w/2, y=s.offsetTop;
+    const z=f=>({l:x+f.x0*w,r:x+f.x1*w,t:y+f.y0*h,b:y+f.y1*h});
+    return {head:z(HEAD),body:z(BODY)};
+  }
+  /* Genera candidatos (encima de la cabeza, o a su lado, con varios anchos) y elige el de menor penalización:
+     salirse de la escena, cubrir una cara o un cuerpo (propio o ajeno) o pisar otro globo. */
+  function place(b,id){
+    const W=scene.clientWidth, H=scene.clientHeight; if(!W||!H) return;
+    const P=8, GAP=12, z=zones(id), fcx=(z.head.l+z.head.r)/2, fcy=z.head.t+(z.head.b-z.head.t)*.55;
+    const bmax=Math.min(240,Math.max(150,W*(W<520?.5:.3)));
+    const obs=[];
+    SCENE_IDS.forEach(k=>{
+      const s=slots[k]; if(!s.el.classList.contains('on')) return;
+      const me=k===id, zz=me?z:zones(k);
+      obs.push({r:zz.head,w:me?9:6},{r:zz.body,w:me?3:1.5});
+      if(!me&&s.say&&s.say!==b) obs.push({r:rectOf(s.say),w:12});
+    });
+    const measure=mw=>{ b.style.maxWidth=Math.round(mw)+'px'; return {w:b.offsetWidth,h:b.offsetHeight}; };
+    const cands=[];
+    [1,.75,.55].forEach((k,i)=>{
+      const mw=Math.min(bmax*k,W-2*P), s=measure(mw);
+      ['c','l','r'].forEach((a,j)=>{
+        const x=clamp(a==='c'?fcx-s.w/2:a==='l'?fcx-s.w+36:fcx-36,P,W-s.w-P);
+        cands.push({side:'top',x,y:z.head.t-GAP-s.h,w:s.w,h:s.h,mw,pen:i*3+(j?5:0)});
+      });
+    });
+    const availR=W-P-(z.head.r+GAP), availL=z.head.l-GAP-P;
+    [1,.7].forEach((k,i)=>{
+      if(availR>=90){ const mw=Math.min(bmax*k,availR), s=measure(mw); cands.push({side:'right',x:z.head.r+GAP,y:clamp(fcy-s.h/2,P,H-s.h-P),w:s.w,h:s.h,mw,pen:14+i*3}); }
+      if(availL>=90){ const mw=Math.min(bmax*k,availL), s=measure(mw); cands.push({side:'left',x:z.head.l-GAP-s.w,y:clamp(fcy-s.h/2,P,H-s.h-P),w:s.w,h:s.h,mw,pen:14+i*3}); }
+    });
+    const bounds={l:4,t:4,r:W-4,b:H-4};
+    let best=null;
+    cands.forEach(c=>{
+      const r={l:c.x,t:c.y,r:c.x+c.w,b:c.y+c.h};
+      let sc=c.pen+(c.w*c.h-overlap(r,bounds))*40;          /* fuera de la escena */
+      obs.forEach(o=>{ sc+=overlap(r,o.r)*o.w; });            /* encima de caras, cuerpos u otros globos */
+      c.sc=sc; if(!best||sc<best.sc) best=c;
+    });
+    if(!best) return;
+    b.style.maxWidth=Math.round(best.mw)+'px';
+    b.style.left=Math.round(best.x)+'px'; b.style.top=Math.round(best.y)+'px';
+    b.dataset.side=best.side;
+    /* la cola apunta a la cara del hablante aunque el globo se haya desplazado para no salirse */
+    const tail=best.side==='top'?clamp(fcx-best.x,18,best.w-18):clamp(fcy-best.y,16,best.h-16);
+    b.style.setProperty('--tail',Math.round(tail)+'px');
+  }
+  function relayout(){ SCENE_IDS.forEach(k=>{ const s=slots[k]; if(s&&s.say&&!s.say.classList.contains('out')) place(s.say,k); }); }
+  /* globo sobre un personaje. Un solo hablante a la vez: al empezar, cualquier otro globo o boca activa se corta. */
+  function say(id,text,ms){
+    const s=slots[id]; if(!s||!layer) return;
+    SCENE_IDS.forEach(k=>{ if(k!==id){ clearSay(k); speaking(k,false); } });
+    clearSay(id);
+    s.el.classList.add('on');
+    const b=el('div','say',text); layer.appendChild(b); s.say=b;
+    place(b,id); b.classList.add('in'); speaking(id,true);
+    s.sayTimer=setTimeout(()=>hush(id),ms||3200);   /* red de seguridad; la charla lo cierra antes con hush() */
+  }
+  /* el personaje termina de hablar: se calla la boca y el globo se desvanece */
+  function hush(id){ speaking(id,false); clearSay(id,true); }
+  function portrait(id,mood,fresh){
+    let p=fresh?null:portraits[id];
+    if(!p){ p=el('div','char portrait'); p.dataset.char=id; p.innerHTML=CharArt.build(id,{portrait:true}); if(!fresh) portraits[id]=p; }
+    CharArt.setMood(p,id,mood||'neutral'); return p;
+  }
+  return {mount,show,hide,hideAll,setMood,speaking,clearSpeaking,say,hush,clearSay,portrait};
+})();
+
+/* ═══════════════ Dialogue: diálogo con retrato, escritura y cancelación limpia ═══════════════ */
+const Dialogue=(function(){
+  const E={name:$('dlgName'),role:$('dlgRole'),text:$('dlgText'),next:$('dlgNext'),skip:$('dlgSkipAll'),count:$('dlgCount'),portrait:$('dlgPortrait'),foot:$('dlgFoot'),choices:$('dlgChoices')};
+  let cur=null,curChoice=null,lastLine=null;   /* lastLine: la última réplica mostrada; es a la que responde el aprendiz */
+  function play(steps){
+    return new Promise((resolve,reject)=>{
+      if(cur||curChoice) abort();
+      cur={steps,i:-1,resolve,reject,typing:false,timer:0};
+      App.showPanel('dialogue'); advance();
+    });
+  }
+  /* pinta la placa del hablante (nombre, retrato, ánimo, contador) y lo deja visible en escena; no toca el texto */
+  function paint(d,st){
+    const info=ROSTER[st.who]||{name:'',role:''};
+    E.name.textContent=info.name; E.role.textContent=info.role;
+    E.count.textContent=d.steps.length>1?(d.i+1)+' / '+d.steps.length:'';
+    E.portrait.textContent=''; E.portrait.appendChild(Cast.portrait(st.who,st.mood||'neutral'));
+    Cast.show(st.who,st.mood||'neutral');
+    lastLine={who:st.who,text:st.text};
+  }
+  function advance(){
+    const d=cur; if(!d) return;
+    stopSpeaking(); d.i++;
+    if(d.i>=d.steps.length){ finish(); return; }
+    const st=d.steps[d.i], info=ROSTER[st.who]||{name:'',role:''};
+    d.who=st.who; d.text=st.text;
+    paint(d,st);
+    E.text.textContent=''; E.text.classList.add('typing'); E.next.textContent='Mostrar todo';
+    d.typing=true; Cast.speaking(st.who,true);
+    UI.announce(info.name+': '+st.text);
+    Voice.speak(st.text,st.who);
+    E.next.focus({preventScroll:true});
+    if(Settings.get('anim')==='off'){ finishTyping(); return; }
+    const chars=Array.from(st.text); let n=0;
+    const step=()=>{
+      if(cur!==d||!d.typing) return;
+      n++; E.text.textContent=chars.slice(0,n).join('');
+      if(n%3===0) Sound.sfx.blip(st.who);
+      if(n>=chars.length){ finishTyping(); return; }
+      const c=chars[n-1]; d.timer=setTimeout(step,/[.!?…]/.test(c)?230:/[,;:]/.test(c)?120:26);
+    };
+    step();
+  }
+  function finishTyping(){
+    const d=cur; if(!d||!d.typing) return;
+    clearTimeout(d.timer); d.typing=false;
+    E.text.textContent=d.text; E.text.classList.remove('typing'); E.next.textContent=d.i>=d.steps.length-1?'Continuar':'Siguiente';
+    Cast.speaking(d.who,false);
+  }
+  /* corta voz, boca y cualquier globo de la charla: mientras habla el diálogo principal no habla nadie más */
+  function stopSpeaking(){ if(cur){ clearTimeout(cur.timer); cur.typing=false; } E.text.classList.remove('typing'); Voice.stop(); Cast.clearSpeaking(); Cast.clearSay(); }
+  function finish(){ const d=cur; cur=null; stopSpeaking(); d.resolve(); }
+  /* «Omitir»: salta a la última réplica y la deja completa en pantalla, porque las opciones siguientes la responden */
+  function skipAll(){
+    const d=cur; if(!d) return;
+    stopSpeaking();
+    d.steps.forEach(s=>Cast.show(s.who,s.mood||'neutral'));   /* cada hablante queda con el ánimo de su último turno */
+    d.i=d.steps.length-1; const st=d.steps[d.i]; d.who=st.who; d.text=st.text;
+    paint(d,st); E.text.textContent=st.text;
+    finish();
+  }
+  function closeChoice(){ E.choices.hidden=true; E.choices.textContent=''; E.foot.hidden=false; }
+  /* opciones de respuesta: el aprendiz elige entre 2-3 réplicas y cada una lleva a una reacción distinta.
+     La réplica anterior (con su nombre y su retrato) sigue visible: se responde a ella, no a otro personaje. */
+  function choose(options,who){
+    who=who||'aprendiz';
+    return new Promise((resolve,reject)=>{
+      if(curChoice){ const old=curChoice; curChoice=null; old.reject(CANCEL); }
+      const entry={resolve,reject}; curChoice=entry;
+      if(!lastLine){
+        const info=ROSTER[who]||{name:'',role:''};
+        E.name.textContent=info.name; E.role.textContent=info.role;
+        E.portrait.textContent=''; E.portrait.appendChild(Cast.portrait(who,'neutral'));
+        E.text.textContent='Elige tu respuesta.';
+      }
+      E.count.textContent=''; E.foot.hidden=true;
+      const box=E.choices; box.textContent=''; box.hidden=false;
+      box.appendChild(el('p','dlg-reply-cap','Tu respuesta:'));
+      options.forEach(opt=>{
+        const b=el('button','dlg-choice',opt.label); b.type='button';
+        b.addEventListener('click',()=>{
+          if(curChoice!==entry) return;
+          curChoice=null; closeChoice(); Sound.sfx.click(); resolve(opt);
+        });
+        box.appendChild(b);
+      });
+      UI.announce('Elige tu respuesta: '+options.map(o=>o.label).join(' — '));
+      requestAnimationFrame(()=>{ const f=box.querySelector('.dlg-choice'); if(f) f.focus({preventScroll:true}); });
+    });
+  }
+  function abort(){
+    lastLine=null;
+    if(curChoice){ const cc=curChoice; curChoice=null; closeChoice(); cc.reject(CANCEL); }
+    const d=cur; if(!d) return; cur=null; stopSpeaking(); d.reject(CANCEL);
+  }
+  function next(){ if(!cur) return; if(cur.typing) finishTyping(); else advance(); }
+  E.next.addEventListener('click',next);
+  E.skip.addEventListener('click',skipAll);
+  return {play,next,abort,choose,get active(){return !!cur;}};
+})();
+
+/* ═══════════════ GradeCalculator: validación estricta y cálculo ═══════════════ */
+const Grade=(function(){
+  const MIN=60;
+  const LIMITS={tareas:80,parcial1:30,parcial2:30,examen:30};
+  const LABELS={tareas:'Trabajos y tareas',parcial1:'Primer parcial',parcial2:'Segundo parcial',examen:'Examen final'};
+  const KEYS=['tareas','parcial1','parcial2','examen'];
+  /* Textos exactos por categoría, tal como los proclama el Consejo */
+  const CATEGORY_TEXT={
+    0:'El Consejo ha determinado que el aprendiz deberá continuar su entrenamiento.',
+    2:'El Consejo considera que el aprendiz ha superado la prueba.',
+    3:'El Consejo reconoce un desempeño notable.',
+    4:'El Rey reconoce un desempeño sobresaliente.',
+    5:'El Consejo Real proclama un desempeño excepcional.'
+  };
+  const CAP={0:'Reprobado',2:'Nota 2 de 5',3:'Nota 3 de 5',4:'Nota 4 de 5',5:'Nota 5 de 5'};
+  const THRESH={2:60,3:71,4:81,5:91};
+  function tierOf(n){ if(n>=91) return 5; if(n>=81) return 4; if(n>=71) return 3; if(n>=MIN) return 2; return 0; }
+  /* interpreta el texto del campo: acepta coma o punto decimal, rechaza signos, letras y notación científica */
+  function checkField(key,raw){
+    const s=String(raw==null?'':raw).trim().replace(',','.');
+    if(s==='') return {empty:true,msg:'Escribe tus puntos.'};
+    if(s.charAt(0)==='-') return {msg:'No puede ser negativo.'};
+    if(!/^(\d+(\.\d*)?|\.\d+)$/.test(s)) return {msg:'Usa solo números; el decimal va con punto o coma.'};
+    const v=parseFloat(s);
+    if(!Number.isFinite(v)) return {msg:'Usa solo números; el decimal va con punto o coma.'};
+    if(v>LIMITS[key]) return {msg:'El máximo es '+LIMITS[key]+' puntos.'};
+    return {value:v};
+  }
+  function compute(v){
+    const pT=v.tareas/80*100, pP=(v.parcial1+v.parcial2)/60*100, notaParcial=pT*.4+pP*.6;
+    const pE=v.examen/30*100;
+    const nf=clamp(Math.round((notaParcial*.6+pE*.4)*100)/100,0,100);
+    return {nf,tier:tierOf(nf)};
+  }
+  function nextGoal(nf,tier){ if(tier===5) return null; const t=tier===0?2:tier+1; return {tier:t,need:Math.max(0,THRESH[t]-nf)}; }
+  return {LIMITS,LABELS,KEYS,CATEGORY_TEXT,CAP,tierOf,checkField,compute,nextGoal,MIN};
+})();
+
+/* ═══════════════ GameState: experiencia, nivel y título ═══════════════ */
+const GameState=(function(){
+  const KEY='aldemar_progress_v2',OLD='aldemar_progress_v1',PER=120;
+  const TITLES=[{min:1,name:'Aprendiz del Reino'},{min:3,name:'Escriba Novato'},{min:6,name:'Estudiante Real'},{min:10,name:'Caballero del Conocimiento'},{min:15,name:'Maestro Académico'},{min:21,name:'Sabio del Reino'}];
+  let xp=0;
+  function load(){ const s=Store.read(KEY)||Store.read(OLD); const v=s&&Number(s.xp); xp=Number.isFinite(v)&&v>0?Math.floor(Math.min(v,1e7)):0; }
+  const level=()=>Math.floor(xp/PER)+1;
+  function title(){ const lv=level(); let t=TITLES[0].name; TITLES.forEach(x=>{ if(lv>=x.min) t=x.name; }); return t; }
+  const xpForGrade=(nf,tier)=>Math.max(0,Math.round(nf*.9)+tier*12+8);
+  function addXP(n){ const before=level(); xp+=Math.max(0,Math.floor(n)); Store.write(KEY,{xp}); render(); return {gained:n,levelUp:level()>before}; }
+  function reset(){ xp=0; Store.write(KEY,{xp}); render(); }
+  function render(){
+    const lv=level(),inLv=xp%PER,pct=Math.round(inLv/PER*100);
+    $('lvlNum').textContent=lv; $('rankTitle').textContent=title();
+    $('xpFill').style.width=pct+'%'; $('xpBar').setAttribute('aria-valuenow',pct);
+    $('titleRank').textContent='Nivel '+lv+' · '+title()+' — '+inLv+'/'+PER+' EXP';
+  }
+  load();
+  return {addXP,xpForGrade,level,title,render,reset,reload:()=>{ load(); render(); }};
+})();
+
+/* ═══════════════ Chronicle: historial validado y sin duplicados ═══════════════ */
+const Chronicle=(function(){
+  const KEY='aldemar_chronicle_v2',OLD='aldemar_chronicle_v1',MAX=60;
+  let list=[];
+  function clean(e){
+    if(!e||typeof e!=='object') return null;
+    const nf=Number(e.nf); if(!Number.isFinite(nf)||nf<0||nf>100) return null;
+    const tier=[0,2,3,4,5].indexOf(e.tier)>=0?e.tier:Grade.tierOf(nf);
+    const xp=Number.isFinite(Number(e.xp))?Math.max(0,Math.floor(Number(e.xp))):0;
+    const ts=Number.isFinite(Number(e.ts))&&Number(e.ts)>0?Number(e.ts):0;
+    const label=typeof e.label==='string'?e.label.slice(0,60):(typeof e.fecha==='string'?(e.fecha+(e.hora?', '+e.hora:'')).slice(0,60):'');
+    const id=typeof e.id==='string'&&e.id?e.id.slice(0,40):'old-'+ts+'-'+nf+'-'+xp+'-'+label;
+    return {id,ts,nf:Math.round(nf*100)/100,tier,xp,label};
+  }
+  function load(){
+    const raw=Store.read(KEY)||Store.read(OLD), seen=new Set(); list=[];
+    if(Array.isArray(raw)) raw.forEach(e=>{ const c=clean(e); if(c&&!seen.has(c.id)){ seen.add(c.id); list.push(c); } });
+    list=list.slice(0,MAX);
+  }
+  function add(nf,tier,xp){
+    const e=clean({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),ts:Date.now(),nf,tier,xp});
+    if(!e||list.some(x=>x.id===e.id)) return null;
+    list.unshift(e); list=list.slice(0,MAX); Store.write(KEY,list); renderSummary(); return e;
+  }
+  function clear(){ list=[]; Store.write(KEY,list); render(); renderSummary(); }
+  function when(e){
+    if(!e.ts) return e.label||'Fecha desconocida';
+    const d=new Date(e.ts);
+    return d.toLocaleDateString('es',{day:'numeric',month:'long',year:'numeric'})+' · '+d.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+  }
+  function render(){
+    const ol=$('chronList'); ol.textContent='';
+    $('chronEmpty').hidden=list.length>0; $('clearChronBtn').disabled=list.length===0;
+    list.forEach(e=>{
+      const li=el('li','chron-item'), seal=el('div','chron-seal'); seal.dataset.tier=e.tier;
+      if(e.tier===0){ seal.innerHTML='<svg class="ico" aria-hidden="true"><use href="#i-cracked"/></svg>'; } else seal.textContent=e.tier;
+      const body=el('div'), top=el('div','chron-top');
+      top.append(el('span',null,fmt(e.nf)+' / 100'),el('span',null,Grade.CAP[e.tier]));
+      body.append(top,el('div','chron-meta',when(e)+' · +'+e.xp+' EXP'),el('div','chron-com',Grade.CATEGORY_TEXT[e.tier]));
+      li.append(seal,body); ol.appendChild(li);
+    });
+    const n=list.length;
+    if(!n) $('chronSummary').textContent='Registro de tus evaluaciones ante el Consejo Real.';
+    else{ const best=Math.max.apply(null,list.map(e=>e.nf)),avg=list.reduce((s,e)=>s+e.nf,0)/n;
+      $('chronSummary').textContent=n+(n===1?' evaluación':' evaluaciones')+' · Mejor: '+fmt(best)+' · Promedio: '+fmt(avg); }
+  }
+  function renderSummary(){ const n=list.length; $('menuChronSub').textContent=n?n+(n===1?' evaluación registrada':' evaluaciones registradas'):'Aún sin evaluaciones'; }
+  load();
+  return {add,clear,render,renderSummary,reload:()=>{ load(); renderSummary(); },count:()=>list.length};
+})();
+
+/* ═══════════════ Modals: ventanas con foco atrapado, Esc y confirmación ═══════════════ */
+const Modals=(function(){
+  const layer=$('modalLayer'),stack=[];
+  let opener=null,confirmDone=null;
+  function bg(on){ ['topbar','stage'].forEach(id=>{ const e=$(id); if(on){ e.setAttribute('inert',''); e.setAttribute('aria-hidden','true'); } else{ e.removeAttribute('inert'); e.removeAttribute('aria-hidden'); } }); }
+  function focusables(m){ return $$('button:not([disabled]),input:not([disabled]),[href],[tabindex]:not([tabindex="-1"])',m).filter(x=>x.offsetParent!==null); }
+  function open(name){
+    const m=$('modal-'+name); if(!m||stack.indexOf(m)>=0) return;
+    if(name!=='confirm') stack.filter(x=>x.id!=='modal-confirm').forEach(x=>{ x.hidden=true; stack.splice(stack.indexOf(x),1); });
+    if(!stack.length){ opener=document.activeElement; bg(true); layer.hidden=false; UI.closeMusic(); }
+    stack.forEach(x=>x.setAttribute('inert',''));
+    if(name==='cronica') Chronicle.render();
+    if(name==='personajes') UI.renderRoster();
+    m.hidden=false; m.removeAttribute('inert'); stack.push(m); m.focus();
+    if(name!=='confirm'){ const body=$$('.modal-body',m)[0]; if(body) body.scrollTop=0; }
+    App.syncNav();
+  }
+  function closeTop(){
+    const m=stack.pop(); if(!m) return;
+    m.hidden=true;
+    if(m.id==='modal-confirm'&&confirmDone){ const d=confirmDone; confirmDone=null; d(false); }
+    if(stack.length){ const t=stack[stack.length-1]; t.removeAttribute('inert'); t.focus(); }
+    else{
+      layer.hidden=true; bg(false);
+      const back=(opener&&document.contains(opener)&&opener.offsetParent!==null)?opener:$('dock');
+      back.focus({preventScroll:true}); opener=null;
+    }
+    App.syncNav();
+  }
+  function closeAll(){ while(stack.length) closeTop(); }
+  function current(){ for(let i=stack.length-1;i>=0;i--){ if(stack[i].id!=='modal-confirm') return stack[i].id.replace('modal-',''); } return null; }
+  function confirm(o){
+    return new Promise(res=>{
+      $('confTitle').textContent=o.title; $('confText').textContent=o.text; $('confYes').textContent=o.yes||'Confirmar';
+      confirmDone=res; open('confirm'); $('confNo').focus();
+    });
+  }
+  $('confYes').addEventListener('click',()=>{ const d=confirmDone; confirmDone=null; closeTop(); if(d) d(true); });
+  $('confNo').addEventListener('click',closeTop);
+  layer.addEventListener('click',e=>{ if(e.target===layer||e.target.closest('[data-close]')) closeTop(); });
+  layer.addEventListener('keydown',e=>{
+    if(e.key!=='Tab'||!stack.length) return;
+    const top=stack[stack.length-1],f=focusables(top); if(!f.length){ e.preventDefault(); return; }
+    const first=f[0],last=f[f.length-1],a=document.activeElement;
+    if(e.shiftKey&&(a===first||a===top)){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey&&a===last){ e.preventDefault(); first.focus(); }
+  });
+  return {open,closeTop,closeAll,current,confirm,get isOpen(){return stack.length>0;}};
+})();
+
+/* ═══════════════ UI: avisos, controles, reproductor, personajes ═══════════════ */
+const UI=(function(){
+  let panelOpen=false,rosterDone=false;
+  function toast(msg,kind){
+    const box=$('toasts'); while(box.children.length>=3) box.firstChild.remove();
+    const t=el('div','toast'+(kind==='warn'?' warn':''),msg); box.appendChild(t);
+    setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),320); },kind==='warn'?5200:3600);
+  }
+  function announce(msg){ const s=$('srLive'); s.textContent=''; setTimeout(()=>{ s.textContent=msg; },40); }
+  const OUT={musicVol:v=>v+'%',sfxVol:v=>v+'%',voiceVol:v=>v+'%',voiceRate:v=>(v/100).toFixed(2)+'×'};
+  function renderControls(){
+    $$('[data-set]').forEach(b=>b.setAttribute('aria-checked',String(!!Settings.get(b.dataset.set))));
+    $$('[data-range]').forEach(r=>{ if(document.activeElement!==r) r.value=Settings.get(r.dataset.range); });
+    $$('[data-out]').forEach(o=>{ o.textContent=OUT[o.dataset.out](Settings.get(o.dataset.out)); });
+    $$('[data-seg]').forEach(g=>{ const v=Settings.get(g.dataset.seg); $$('button',g).forEach(b=>b.setAttribute('aria-checked',String(b.dataset.val===v))); });
+    const m=Settings.get('masterMute'),mb=$('mpMute');
+    mb.setAttribute('aria-pressed',String(m)); mb.setAttribute('aria-label',m?'Activar el sonido':'Silenciar todo el sonido');
+    mb.querySelector('use').setAttribute('href',m?'#i-mute':'#i-vol');
+  }
+  function bindSettings(){
+    $$('[data-set]').forEach(b=>b.addEventListener('click',()=>{
+      const k=b.dataset.set,v=!Settings.get(k);
+      if(k==='musicOn'){ v?Music.play():Music.pause(); return; }
+      Settings.set(k,v);
+      if(k==='sfxOn'&&v) Sound.sfx.click();
+    }));
+    $$('[data-range]').forEach(r=>{
+      r.addEventListener('input',()=>Settings.set(r.dataset.range,Number(r.value)));
+      r.addEventListener('change',()=>{ if(r.dataset.range==='sfxVol') Sound.sfx.coin(); });
+    });
+    $$('[data-seg]').forEach(g=>$$('button',g).forEach(b=>b.addEventListener('click',()=>Settings.set(g.dataset.seg,b.dataset.val))));
+    $('voiceTest').addEventListener('click',()=>Voice.speak('Que el reino te reciba con honor, joven aprendiz.','rey',true));
+    $('resetSettings').addEventListener('click',()=>{ Settings.reset(); Voice.stop(); Music.updateUI(); toast('Ajustes restablecidos.'); });
+    $('resetProgress').addEventListener('click',async()=>{
+      const ok=await Modals.confirm({title:'¿Borrar todo el progreso?',text:'Se eliminarán tu experiencia, tu nivel y toda la crónica. Esta acción no se puede deshacer.',yes:'Borrar todo'});
+      if(ok){ GameState.reset(); Chronicle.clear(); toast('Progreso y crónica borrados.'); }
+    });
+    if(!Voice.supported){
+      $('voiceNote').hidden=false;
+      $$('[data-set="voiceOn"],[data-range="voiceVol"],[data-range="voiceRate"],#voiceTest').forEach(x=>{ x.disabled=true; });
+    }
+    Settings.subscribe(renderControls); renderControls();
+  }
+  function renderRoster(){
+    if(rosterDone) return; rosterDone=true;
+    const box=$('roster');
+    ['rey','escriba','consejero','bufon','caballero','maestro','aprendiz'].forEach(id=>{
+      const r=ROSTER[id],card=el('article','roster-card'),frame=el('div','portrait-frame');
+      frame.appendChild(Cast.portrait(id,id==='caballero'?'neutral':'pleased',true));
+      card.append(frame,el('h3',null,r.name),el('p','role',r.role),el('p',null,r.bio)); box.appendChild(card);
+    });
+  }
+  function openMusic(){ panelOpen=true; $('musicPanel').hidden=false; $('musicBtn').setAttribute('aria-expanded','true'); Music.setPanelOpen(true); Music.updateUI(); }
+  function closeMusic(){ if(!panelOpen) return; panelOpen=false; $('musicPanel').hidden=true; $('musicBtn').setAttribute('aria-expanded','false'); Music.setPanelOpen(false); }
+  function initMusicPanel(){
+    $('musicBtn').addEventListener('click',()=>{ if(panelOpen) closeMusic(); else{ openMusic(); $('mpPlay').focus(); } });
+    $('mpPlay').addEventListener('click',()=>Music.toggle());
+    $('mpNext').addEventListener('click',()=>Music.next());
+    $('mpPrev').addEventListener('click',()=>Music.prev());
+    $('mpMute').addEventListener('click',()=>{ Settings.set('masterMute',!Settings.get('masterMute')); });
+    document.addEventListener('pointerdown',e=>{ if(panelOpen&&!e.target.closest('#musicPanel,#musicBtn')) closeMusic(); });
+  }
+  function initDust(){
+    const box=$('dust');
+    for(let i=0;i<14;i++){ const m=el('i','mote'); m.style.left=rnd(4,96).toFixed(1)+'%'; m.style.animationDuration=rnd(9,17).toFixed(1)+'s'; m.style.animationDelay='-'+rnd(0,14).toFixed(1)+'s'; m.style.setProperty('--dx',rnd(-40,40).toFixed(0)+'px'); box.appendChild(m); }
+  }
+  return {toast,announce,bindSettings,renderRoster,initMusicPanel,initDust,openMusic,closeMusic,get musicOpen(){return panelOpen;}};
+})();
+
+/* ═══════════════ App: máquina de estados y flujo de la audiencia ═══════════════
+   Estados: menu → intro → input → review → deliver → deliberate → verdict
+   Cada escena usa un "flowId": al cancelar, todo lo pendiente se corta de raíz. */
+const App=(function(){
+  let state='menu',flowId=0,pending=null,result=null,seenIntro=false;
+  const waiters=new Set(),panels=$$('.panel'),card=$('verdictCard'),form=$('gradeForm');
+  const KING_MOOD={0:'stern',2:'wary',3:'pleased',4:'happy',5:'radiant'};
+  /* el rey habla siempre en primera persona (solemne, pero nunca de sí mismo como un tercero) */
+  const KING_LINE={
+    0:'Había pensado en tu ejecución… pero incluso un rey concede una segunda oportunidad.',
+    2:'Te has salvado por poco, aprendiz. No tientes a la suerte.',
+    3:'Me parece aceptable. Puedes retirarte con la frente en alto.',
+    4:'Te felicito, aprendiz. Tu esfuerzo ha sido notable.',
+    5:'Te nombro mi consejero real. ¡Que se entere todo el reino!'
+  };
+  /* ánimo con el que el bufón y el caballero reciben cada veredicto; sus palabras están en CONSEJO_REACT */
+  const BUFON_MOOD={0:'sad',2:'surprised',3:'pleased',4:'happy',5:'radiant'};
+  const CABALLERO_MOOD={0:'stern',2:'neutral',3:'pleased',4:'happy',5:'radiant'};
+  const NEXT_MSG={0:'Repasa tus parciales y vuelve a presentarte cuando estés listo.',2:'Aprobaste por poco: cada punto extra en el examen final suma.',3:'Un resultado sólido. Sigue así.',4:'Un resultado sobresaliente. ¡Casi la cima!',5:'Es la nota máxima. ¡Leyenda de Aldemar!'};
+
+  /* ── memoria de la audiencia: lo que el aprendiz eligió y cómo le fue antes. Las charlas posteriores la usan. ── */
+  const ctx={intro:null,escriba:null,ready:null,prev:null};
+
+  /* ── opciones de diálogo: cada réplica del aprendiz cambia cómo reacciona la corte ── */
+  const INTRO_CHOICES=[
+    {id:'humilde',label:'Me presento con humildad, majestad.'},
+    {id:'seguro',label:'Vengo con la confianza puesta en mi trabajo.'},
+    {id:'directo',label:'¿Podemos empezar cuanto antes?'}
+  ];
+  /* cada respuesta del rey termina mandando al aprendiz al Gran Libro: así la escena siguiente tiene sentido */
+  const INTRO_REPLY={
+    humilde:{who:'rey',mood:'pleased',text:'La humildad honra esta corte. Acércate a la mesa y anota tus puntos en el Gran Libro.'},
+    seguro:{who:'rey',mood:'happy',text:'Ese temple me agrada. Veamos si tus notas lo respaldan: anota tus puntos en el Gran Libro.'},
+    directo:{who:'rey',mood:'wary',text:'Sin rodeos, ¿eh? Que así sea. A la mesa, y anota tus puntos en el Gran Libro.'}
+  };
+  function introSteps(){
+    if(!seenIntro) return [
+      {who:'rey',mood:'pleased',text:'Bienvenido al Salón del Trono, joven aprendiz. Soy Aldemar, rey de este reino.'},
+      {who:'rey',mood:'neutral',text:'El Consejo Académico aguarda tus resultados. Anota tus puntos en el Gran Libro y preséntalos ante mi corte.'},
+      {who:'rey',mood:'happy',text:'Antes de empezar, dime, aprendiz: ¿con qué ánimo te presentas hoy?'}];
+    const p=ctx.prev; let mem='';
+    if(p) mem=p.tier===0?' La última vez el Consejo no te fue favorable, pero veo que no te rindes.'
+      :p.tier>=4?' Tu última nota fue de '+fmt(p.nf)+'; veamos si la igualas.'
+      :' La última vez alcanzaste '+fmt(p.nf)+' puntos.';
+    return [{who:'rey',mood:'pleased',text:'De nuevo ante el trono, aprendiz.'+mem+' ¿Con qué ánimo vuelves hoy?'}];
+  }
+
+  const ESCRIBA_CHOICES=[
+    {id:'gracias',label:'Gracias por tu diligencia, escriba.'},
+    {id:'nervioso',label:'Espero no haber olvidado nada…'},
+    {id:'apuro',label:'¿Cuánto tardará el Consejo?'}
+  ];
+  /* el escriba siempre pasa el pergamino al consejero: es lo que hace entrar a Draven en escena */
+  const ESCRIBA_REPLY={
+    gracias:{who:'escriba',mood:'pleased',text:'Es un honor servir a la corona. Entrego ahora tu pergamino al Consejero Draven.'},
+    nervioso:{who:'escriba',mood:'neutral',text:'Tranquilo: cada pergamino se revisa dos veces antes de sellarse. Ahora lo entrego al Consejero Draven.'},
+    apuro:{who:'escriba',mood:'smirk',text:'La paciencia es la primera virtud de esta corte. El Consejero Draven ya tiene tu pergamino; no tardará.'}
+  };
+  /* el consejero analiza las cifras reales del aprendiz (es su papel: ojo crítico, sin sentimentalismos) */
+  const PART={tareas:'tus trabajos y tareas',parcial1:'tu primer parcial',parcial2:'tu segundo parcial',examen:'tu examen final'};
+  function consejeroLine(v){
+    const r={}; Grade.KEYS.forEach(k=>{ r[k]=v[k]/Grade.LIMITS[k]; });
+    const ks=Grade.KEYS, hi=ks.reduce((a,k)=>r[k]>r[a]?k:a,ks[0]), lo=ks.reduce((a,k)=>r[k]<r[a]?k:a,ks[0]);
+    const base='Majestad, las cuatro cifras coinciden con el registro y respetan sus límites. ';
+    if(r[hi]===0) return base+'Aunque todas constan en cero, el pronóstico es sombrío.';
+    if(r[lo]===1) return base+'Y todas alcanzan su máximo: un registro impecable.';
+    if(r[hi]-r[lo]<.06) return base+'Lo notable es lo parejas que son.';
+    return base+'Lo más sólido es '+PART[hi]+'; lo más débil, '+PART[lo]+'.';
+  }
+  const READY_CHOICES=[
+    {id:'listo',label:'Estoy listo, majestad.'},
+    {id:'nervioso2',label:'Un poco nervioso, para ser sincero.'},
+    {id:'audaz',label:'¡Que empiece el juicio!'}
+  ];
+  /* responde quien preguntó (el rey); el consejero solo añade algo cuando el aprendiz confiesa nervios */
+  const READY_REPLY={
+    listo:[{who:'rey',mood:'happy',text:'Así me gusta. Que el Consejo delibere.'}],
+    nervioso2:[{who:'rey',mood:'pleased',text:'El temor es señal de que te importa, aprendiz. Que el Consejo delibere.'},
+               {who:'consejero',mood:'neutral',text:'Las cifras constan en orden, aprendiz. Es todo lo que puedo adelantarte.'}],
+    audaz:[{who:'rey',mood:'smirk',text:'¡Ese ánimo! Que el Consejo decida, entonces.'}]
+  };
+
+  /* ── charlas entre el bufón (burlón, se ríe de sí mismo) y el caballero (parco, honorable). Se tutean siempre.
+        Cada guion es una conversación cerrada en la que cada frase responde a la anterior.
+        «when» los activa según lo que el aprendiz eligió antes; {nf} y {gap} se rellenan con la nota real. ── */
+  const DELIBERATE_CHAT=[
+    {lines:[{who:'bufon',mood:'surprised',text:'¡Qué tensión! Se me caen los cascabeles.'},
+            {who:'caballero',mood:'stern',text:'Silencio en la corte.'},
+            {who:'bufon',mood:'wary',text:'Solo digo lo que todos pensamos…'},
+            {who:'caballero',mood:'stern',text:'Pues piénsalo en silencio.'}]},
+    {lines:[{who:'bufon',mood:'thinking',text:'¿Aprobará? ¿No aprobará? Apuesto un cascabel a que sí.'},
+            {who:'caballero',mood:'neutral',text:'No se apuesta sobre el esfuerzo ajeno.'},
+            {who:'bufon',mood:'surprised',text:'¡Ay, qué serio! Era solo un cascabel.'},
+            {who:'caballero',mood:'stern',text:'Alguien debe guardar la compostura en esta sala.'}]},
+    {lines:[{who:'bufon',mood:'wary',text:'Mis cascabeles tiemblan… ¿o soy yo?'},
+            {who:'caballero',mood:'neutral',text:'Ambos, seguramente.'},
+            {who:'bufon',mood:'surprised',text:'¡Vaya, el caballero bromea!'},
+            {who:'caballero',mood:'stern',text:'Fue un comentario. No una broma.'}]},
+    {when:()=>ctx.ready==='nervioso2'||ctx.escriba==='nervioso',
+     lines:[{who:'bufon',mood:'wary',text:'El aprendiz está más pálido que el pergamino del escriba.'},
+            {who:'caballero',mood:'neutral',text:'El nerviosismo no es deshonra. Yo también lo sentí ante mi primer combate.'},
+            {who:'bufon',mood:'surprised',text:'¿Tú, nervioso? ¿Con esa armadura?'},
+            {who:'caballero',mood:'stern',text:'Bajo la armadura también late un corazón, bufón.'}]},
+    {when:()=>ctx.ready==='audaz'||ctx.intro==='seguro',
+     lines:[{who:'bufon',mood:'smirk',text:'Qué aplomo el del aprendiz. O mucha confianza, o ninguna sensatez.'},
+            {who:'caballero',mood:'neutral',text:'La confianza se demuestra con hechos, no con palabras.'},
+            {who:'bufon',mood:'happy',text:'Entonces pronto sabremos de qué está hecho.'},
+            {who:'caballero',mood:'pleased',text:'Eso es lo único que importa.'}]},
+    {when:()=>ctx.intro==='directo'||ctx.escriba==='apuro',
+     lines:[{who:'bufon',mood:'surprised',text:'¡Con qué prisa vino el aprendiz! Ni un juglar canta tan rápido.'},
+            {who:'caballero',mood:'neutral',text:'La prisa es mala consejera.'},
+            {who:'bufon',mood:'wary',text:'Y peor bufona que yo, que ya es decir.'},
+            {who:'caballero',mood:'stern',text:'Ahora al aprendiz le toca esperar, como a todos.'}]}
+  ];
+  const CONSEJO_REACT={
+    0:[{lines:[{who:'bufon',mood:'sad',text:'Ay, {nf}… A mí también me duele, y eso que no soy yo el examinado.'},
+               {who:'caballero',mood:'stern',text:'El fracaso enseña a quien quiere aprender. Levántate, aprendiz.'},
+               {who:'bufon',mood:'sad',text:'Fácil decirlo tú, que nunca fallas una estocada.'},
+               {who:'caballero',mood:'neutral',text:'También fallé alguna vez. Solo que nadie lo vio.'}]},
+       {lines:[{who:'caballero',mood:'stern',text:'Faltaron {gap} puntos. Es una distancia que se recorre con estudio.'},
+               {who:'bufon',mood:'sad',text:'¡Ánimo, aprendiz! Yo llevo años fallando y aún tengo trabajo.'},
+               {who:'caballero',mood:'neutral',text:'Eso no es motivo de orgullo, bufón.'},
+               {who:'bufon',mood:'wary',text:'Perdón… era mi forma de ayudar.'}]}],
+    2:[{lines:[{who:'bufon',mood:'surprised',text:'¡Con {nf}! Por los pelos, aprendiz.'},
+               {who:'caballero',mood:'neutral',text:'Se aprueba o no se aprueba. Y se aprobó.'},
+               {who:'bufon',mood:'smirk',text:'Hasta yo aplaudo… un poquito.'},
+               {who:'caballero',mood:'pleased',text:'Un aplauso ganado vale más que diez regalados.'}]},
+       {lines:[{who:'caballero',mood:'neutral',text:'Aprobado, aunque con poco margen. No te acostumbres a lo justo.'},
+               {who:'bufon',mood:'surprised',text:'¡Por poco, pero dentro es dentro!'},
+               {who:'caballero',mood:'neutral',text:'Dentro es dentro. Faltaron {gap} puntos para el siguiente escalón.'},
+               {who:'bufon',mood:'smirk',text:'Yo me acostumbré a lo justo. Y mira dónde vivo: en un castillo.'}]}],
+    3:[{lines:[{who:'bufon',mood:'pleased',text:'{nf}… Bien, bien. Ni un cascabel ha sonado.'},
+               {who:'caballero',mood:'pleased',text:'Trabajo constante. Se nota.'},
+               {who:'bufon',mood:'happy',text:'¡Constante dice! Yo diría que hasta brilla un poco.'},
+               {who:'caballero',mood:'pleased',text:'No exageres, bufón. Aunque… no te falta razón.'}]},
+       {lines:[{who:'caballero',mood:'pleased',text:'Un resultado firme, de los que se construyen sin prisa.'},
+               {who:'bufon',mood:'pleased',text:'Firme y sin sobresaltos. Casi me aburres.'},
+               {who:'caballero',mood:'pleased',text:'Prefiero aburrirte a alarmarte.'},
+               {who:'bufon',mood:'happy',text:'Tiene lógica, para variar.'}]}],
+    4:[{lines:[{who:'bufon',mood:'happy',text:'¡{nf}! Esto merece una pirueta.'},
+               {who:'caballero',mood:'happy',text:'Honor a tu esfuerzo, aprendiz.'},
+               {who:'bufon',mood:'radiant',text:'¡Vamos, Halric, si hasta sonríes!'},
+               {who:'caballero',mood:'happy',text:'Solo un poco. No te acostumbres.'}]},
+       {lines:[{who:'caballero',mood:'happy',text:'Un resultado que honra a esta corte.'},
+               {who:'bufon',mood:'happy',text:'¡Y a mis piruetas de celebración!'},
+               {who:'caballero',mood:'pleased',text:'Guárdalas para el salón, bufón.'},
+               {who:'bufon',mood:'radiant',text:'¡Entonces al salón! ¡Que alguien traiga música!'}]}],
+    5:[{lines:[{who:'bufon',mood:'radiant',text:'¡{nf}! Consejero real… me quedaré sin trabajo.'},
+               {who:'caballero',mood:'radiant',text:'Mi espada al servicio del nuevo consejero.'},
+               {who:'bufon',mood:'radiant',text:'¡Y yo seré su bufón oficial, faltaría más!'},
+               {who:'caballero',mood:'radiant',text:'Aldemar entero recordará este día.'}]},
+       {lines:[{who:'caballero',mood:'radiant',text:'Nota máxima. Pocas veces se ve algo así en esta corte.'},
+               {who:'bufon',mood:'radiant',text:'¡Tocaré todos mis cascabeles en su honor!'},
+               {who:'caballero',mood:'radiant',text:'Suenan poco, pero alegran la sala. Eso ya es mucho.'},
+               {who:'bufon',mood:'radiant',text:'¡El bufón más honrado de Aldemar!'}]}]
+  };
+  /* comentarios según la evolución respecto a la última audiencia (solo si el tono encaja con el veredicto) */
+  const TREND=[
+    {when:()=>result&&ctx.prev&&result.tier>=2&&result.nf>ctx.prev.nf,
+     lines:[{who:'bufon',mood:'happy',text:'¡Subiste desde la última vez, aprendiz! Se nota el estudio.'},
+            {who:'caballero',mood:'pleased',text:'Cada intento deja algo aprendido. Ese es el camino.'},
+            {who:'bufon',mood:'pleased',text:'Lo dice quien lleva años puliendo su espada.'},
+            {who:'caballero',mood:'neutral',text:'Y quien nunca deja de pulirla.'}]},
+    {when:()=>result&&ctx.prev&&(result.tier===2||result.tier===3)&&result.nf<ctx.prev.nf,
+     lines:[{who:'bufon',mood:'wary',text:'Vaya… un poco menos que la última vez.'},
+            {who:'caballero',mood:'stern',text:'Un tropiezo no borra lo aprendido.'},
+            {who:'bufon',mood:'sad',text:'Eso dicen siempre los que no tropiezan.'},
+            {who:'caballero',mood:'neutral',text:'Te equivocas. Tropecé más de lo que crees.'}]}
+  ];
+  /* elige un guion: prefiere los que encajan con lo ocurrido y nunca repite el último usado con la misma clave */
+  const lastChat={};
+  function chatFor(list,key){
+    const cond=list.filter(x=>x.when&&x.when()), gen=list.filter(x=>!x.when);
+    const pool=(cond.length&&(!gen.length||Math.random()<.7))?cond:gen;
+    const fresh=pool.filter(x=>x!==lastChat[key]);
+    const c=pick(fresh.length?fresh:pool); lastChat[key]=c; return c.lines;
+  }
+  /* sustituye {nf} y {gap} por los números reales del veredicto (los mismos que muestra la tarjeta) */
+  function fill(t){
+    const r=result; if(!r) return t;
+    const g=Grade.nextGoal(r.nf,r.tier), gap=r.tier===0?Math.max(0,Grade.MIN-r.nf):(g?g.need:0);
+    return t.replace(/\{nf\}/g,fmt(r.nf)).replace(/\{gap\}/g,fmt(gap));
+  }
+
+  /* ── control de escenas asíncronas ── */
+  function wait(ms){ return new Promise((res,rej)=>{ const w={rej}; w.t=setTimeout(()=>{ waiters.delete(w); res(); },ms); waiters.add(w); }); }
+  /* tiempo de lectura de un globo: proporcional al texto e igual en todos los modos de animación
+     (antes, con animaciones desactivadas, cada globo duraba menos de un segundo) */
+  const readTime=t=>clamp(t.length*58+900,1800,5200);
+  /* si la voz está activada, espera a que termine de hablar antes de dar el turno al siguiente */
+  async function waitVoice(id,max){
+    const t0=performance.now();
+    while(Voice.busy()&&performance.now()-t0<(max||5000)){ await wait(120); if(!alive(id)) return; }
+  }
+  /* charla dinámica entre personajes con turnos estrictos: habla uno, se calla, y solo entonces habla el siguiente.
+     Cast.say() ya garantiza que nunca haya dos globos ni dos bocas activas. */
+  function converse(id,lines){
+    return (async()=>{
+      const mode=Settings.get('anim'); let prev=null;
+      for(const raw of lines){
+        if(!alive(id)) return;
+        const ln=Object.assign({},raw,{text:fill(raw.text)});
+        if(prev) await wait(mode==='off'?90:mode==='reduced'?320:(prev.who!==ln.who?480:320));
+        if(!alive(id)) return;
+        Cast.show(ln.who,ln.mood);
+        Cast.say(ln.who,ln.text,60000);
+        Sound.sfx.blip(ln.who); UI.announce(((ROSTER[ln.who]||{}).name||'')+': '+ln.text); Voice.speak(ln.text,ln.who);
+        await wait(readTime(ln.text)); await waitVoice(id,4500);
+        Cast.hush(ln.who); prev=ln;
+      }
+    })();
+  }
+  function cancelFlow(){
+    flowId++;
+    waiters.forEach(w=>{ clearTimeout(w.t); w.rej(CANCEL); }); waiters.clear();
+    Dialogue.abort(); Voice.stop(); Cast.clearSay(); Cast.clearSpeaking(); FX.clear();
+  }
+  async function run(fn){
+    cancelFlow(); const id=flowId;
+    try{ await fn(id); }
+    catch(e){ if(e!==CANCEL){ console.error(e); UI.toast('Algo salió mal en la escena. Vuelve al menú e inténtalo de nuevo.','warn'); } }
+  }
+  const alive=id=>id===flowId;
+
+  /* ── estados y paneles ── */
+  function showPanel(name){ panels.forEach(p=>{ p.hidden=p.dataset.panel!==name; }); document.body.classList.toggle('dlg-open',name==='dialogue'); }
+  function setState(s){ state=s; document.body.dataset.state=s; $('titleScreen').hidden=s!=='menu'; syncNav(); }
+  function syncNav(){
+    const active=Modals.current()||(state==='menu'?null:'hall');
+    $$('.nav-btn').forEach(b=>{ if(b.dataset.nav===active) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  }
+  function ensureVisible(){
+    if(innerWidth>900) return;
+    $('dock').scrollIntoView({block:'start',behavior:Settings.get('anim')==='off'?'auto':'smooth'});
+  }
+
+  /* ── formulario ── */
+  function fieldEl(k){ return document.querySelector('.field[data-key="'+k+'"]'); }
+  function setFieldError(k,msg){
+    const f=fieldEl(k),inp=$(k),err=$(k+'-err');
+    f.classList.toggle('invalid',!!msg); err.textContent=msg||''; inp.setAttribute('aria-invalid',msg?'true':'false');
+  }
+  function validateField(k,strict){
+    const r=Grade.checkField(k,$(k).value);
+    if(r.empty){ setFieldError(k,strict?r.msg:''); return false; }
+    setFieldError(k,r.msg||''); return r.value!==undefined;
+  }
+  function resetForm(){ form.reset(); Grade.KEYS.forEach(k=>setFieldError(k,'')); $('formError').textContent=''; }
+  function onSubmit(e){
+    e.preventDefault();
+    if(state!=='input') return;
+    const vals={}; let firstBad=null;
+    Grade.KEYS.forEach(k=>{ const r=Grade.checkField(k,$(k).value); setFieldError(k,r.msg||''); if(r.value===undefined){ if(!firstBad) firstBad=k; } else vals[k]=r.value; });
+    if(firstBad){ $('formError').textContent='Revisa las casillas marcadas: cada una necesita un número dentro de su límite.'; $(firstBad).focus(); Sound.sfx.defeat(); return; }
+    $('formError').textContent=''; pending=vals; Sound.sfx.page();
+    const ul=$('recap'); ul.textContent='';
+    Grade.KEYS.forEach(k=>{ const li=el('li'); li.append(el('span',null,Grade.LABELS[k]),el('b',null,vals[k]+' / '+Grade.LIMITS[k])); ul.appendChild(li); });
+    setState('review'); showPanel('review'); ensureVisible(); $('deliverBtn').focus({preventScroll:true});
+  }
+
+  /* ── flujo: entrada ── */
+  function startEval(){
+    Sound.ensure(); Sound.sfx.click();
+    /* la audiencia anterior queda en la memoria del rey; las elecciones de esa audiencia se olvidan */
+    if(result&&result.committed) ctx.prev={nf:result.nf,tier:result.tier};
+    ctx.intro=ctx.escriba=ctx.ready=null;
+    resetForm(); pending=null; result=null; card.classList.remove('pending','revealing');
+    run(async id=>{
+      Cast.hideAll(); Cast.show('rey','pleased'); setState('intro'); Music.setMood('castillo');
+      await Dialogue.play(introSteps()); if(!alive(id)) return;
+      const choice=await Dialogue.choose(INTRO_CHOICES); if(!alive(id)) return;
+      ctx.intro=choice.id;
+      await Dialogue.play([INTRO_REPLY[choice.id]]); if(!alive(id)) return;
+      seenIntro=true; setState('input'); showPanel('form'); ensureVisible();
+      const first=Grade.KEYS.map($).find(i=>!i.value)||$('tareas'); first.focus({preventScroll:true});
+    });
+  }
+
+  /* ── flujo: entrega, deliberación y veredicto ── */
+  function deliver(){
+    if(state!=='review'||!pending) return;
+    const v=pending; result=Grade.compute(v); result.committed=false; ctx.escriba=ctx.ready=null;
+    run(async id=>{
+      Sound.ensure(); Sound.sfx.parchment(); setState('deliver'); Music.setMood('estudio');
+      Cast.show('escriba','neutral');
+      await Dialogue.play([{who:'escriba',mood:'neutral',text:'Recibo tu pergamino. Anoto: tareas '+v.tareas+', parciales '+v.parcial1+' y '+v.parcial2+', examen final '+v.examen+'. Todo queda asentado en el registro real.'}]); if(!alive(id)) return;
+      const c1=await Dialogue.choose(ESCRIBA_CHOICES); if(!alive(id)) return;
+      ctx.escriba=c1.id;
+      await Dialogue.play([ESCRIBA_REPLY[c1.id]]); if(!alive(id)) return;
+      /* el escriba acaba de pasar el pergamino: solo ahora entra el consejero, y habla de las cifras reales */
+      Cast.show('consejero','thinking');
+      await Dialogue.play([
+        {who:'consejero',mood:'thinking',text:consejeroLine(v)},
+        {who:'rey',mood:'pleased',text:'Excelente, Draven. Veamos qué trae este aprendiz ante mi trono… ¿Estás listo para conocer tu puntaje?'}]); if(!alive(id)) return;
+      const c2=await Dialogue.choose(READY_CHOICES); if(!alive(id)) return;
+      ctx.ready=c2.id;
+      await Dialogue.play(READY_REPLY[c2.id]); if(!alive(id)) return;
+      /* deliberación: escriba y consejero se retiran; el bufón y el caballero comentan, uno a la vez */
+      setState('deliberate'); card.dataset.tier=''; card.classList.add('pending'); card.classList.remove('revealing');
+      $('vStatus').textContent='El Consejo delibera'; $('vScore').textContent='0.00'; $('vSeal').className='v-seal'; $('vSeal').textContent='';
+      showPanel('verdict'); ensureVisible(); Music.setMood('tension');
+      Cast.setMood('rey','thinking'); Cast.hide('escriba'); Cast.hide('consejero');
+      Cast.show('bufon','surprised'); Cast.show('caballero','stern');
+      await converse(id,chatFor(DELIBERATE_CHAT,'delib')); if(!alive(id)) return;
+      const long=Settings.get('anim')!=='off'; Sound.sfx.drumroll(long?1.7:.3); await wait(long?1400:300);
+      await reveal(id);
+    });
+  }
+  function countUp(target,id){
+    return new Promise(res=>{
+      const out=$('vScore');
+      if(Settings.get('anim')==='off'){ out.textContent=fmt(target); res(); return; }
+      const t0=performance.now(),dur=1300; let lastTick=0;
+      const step=now=>{
+        if(!alive(id)){ res(); return; }
+        const p=clamp((now-t0)/dur,0,1),e=1-Math.pow(1-p,3);
+        out.textContent=fmt(target*e);
+        if(now-lastTick>85&&p<1){ lastTick=now; Sound.sfx.tick(); }
+        if(p<1) requestAnimationFrame(step); else res();
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  async function reveal(id){
+    const r=result,tier=r.tier;
+    card.dataset.tier=tier; card.classList.remove('pending'); card.classList.add('revealing');
+    $('vStatus').textContent='Veredicto del Consejo';
+    await countUp(r.nf,id); if(!alive(id)) return;
+    $('vScore').textContent=fmt(r.nf);
+    /* sello, luz y partículas */
+    const seal=$('vSeal'); seal.className='v-seal';
+    if(tier===0) seal.innerHTML='<svg class="ico" aria-hidden="true"><use href="#i-cracked"/></svg>'; else seal.textContent=tier;
+    void seal.offsetWidth; seal.classList.add('stamp'); Sound.sfx.seal();
+    const fl=$('flash'); fl.classList.remove('hit'); void fl.offsetWidth; fl.classList.add('hit');
+    const sz=FX.size();
+    if(tier===0){ FX.ash(34); const sc=$('scene'); sc.classList.remove('shake'); void sc.offsetWidth; sc.classList.add('shake'); Sound.sfx.defeat(); }
+    else{
+      Sound.sfx.victory();
+      if(tier>=4){ FX.confetti(sz.W*.5,sz.H*.42,tier===5?110:70,FX.FEAST); }
+      FX.spark(sz.W*.5,sz.H*.4,tier>=4?36:22,FX.GOLD);
+      if(tier===5) FX.coinRain(36);
+    }
+    /* reacciones: cada uno recibe el veredicto con su ánimo; hablarán después de que el rey pronuncie su sentencia */
+    Cast.show('rey',KING_MOOD[tier]); Cast.show('bufon',BUFON_MOOD[tier]); Cast.show('caballero',CABALLERO_MOOD[tier]);
+    Music.setMood(tier===0?'misterio':tier>=4?'celebracion':'castillo');
+    /* textos del veredicto */
+    $('vGrade').textContent=Grade.CAP[tier];
+    $('vKingText').textContent=KING_LINE[tier];
+    $('vCouncil').textContent=Grade.CATEGORY_TEXT[tier];
+    const goal=Grade.nextGoal(r.nf,tier);
+    $('vMeaning').textContent=tier===0?'Reprobado: te faltaron '+fmt(Grade.MIN-r.nf)+' puntos para aprobar.':'Aprobado con '+fmt(r.nf)+' de 100.'+(goal?' Te faltan '+fmt(goal.need)+' puntos para la nota '+goal.tier+'.':'');
+    $('vNext').textContent=NEXT_MSG[tier];
+    /* experiencia y crónica: se guardan una sola vez por evaluación */
+    if(!r.committed){
+      r.committed=true;
+      const xp=GameState.xpForGrade(r.nf,tier), res=GameState.addXP(xp);
+      Chronicle.add(r.nf,tier,xp);
+      $('vXpText').textContent='+'+xp+' EXP'+(res.levelUp?' · ¡Subes al nivel '+GameState.level()+'!':'');
+      Sound.sfx.coin(); if(res.levelUp){ setTimeout(()=>Sound.sfx.levelup(),700); UI.toast('¡Has subido al nivel '+GameState.level()+' — '+GameState.title()+'!'); }
+    }
+    UI.announce('Resultado: '+fmt(r.nf)+' de 100. '+Grade.CAP[tier]+'. '+KING_LINE[tier]);
+    /* el rey pronuncia el veredicto */
+    Cast.speaking('rey',true); Voice.speak(KING_LINE[tier],'rey');
+    await wait(Math.min(4200,KING_LINE[tier].length*55)); await waitVoice(id,6500); Cast.speaking('rey',false);
+    await wait(500);
+    card.classList.remove('revealing'); setState('verdict');
+    $('vGrade').focus({preventScroll:true});
+    if(innerWidth<=900) card.scrollIntoView({block:'nearest',behavior:Settings.get('anim')==='off'?'auto':'smooth'});
+    /* turno de la corte: el bufón y el caballero hablan solo cuando el rey ya terminó; se cancela con la escena */
+    converse(id,chatFor(CONSEJO_REACT[tier].concat(TREND),'react'+tier)).catch(e=>{ if(e!==CANCEL) console.error(e); });
+  }
+
+  /* ── navegación ── */
+  async function toMenu(){
+    if(state==='deliver'||state==='deliberate'){
+      const ok=await Modals.confirm({title:'¿Volver al menú?',text:'La audiencia está en curso. Si sales ahora, tendrás que presentar el pergamino de nuevo.',yes:'Volver al menú'});
+      if(!ok) return;
+    }
+    cancelFlow(); Modals.closeAll(); UI.closeMusic(); closeNav();
+    Cast.hideAll(); card.classList.remove('pending','revealing'); pending=null; ctx.intro=ctx.escriba=ctx.ready=null;
+    setState('menu'); showPanel('idle'); Music.setMood('castillo');
+    $('startBtn').focus({preventScroll:true}); scrollTo(0,0);
+  }
+  function goHall(){ if(state==='menu') startEval(); else{ Modals.closeAll(); closeNav(); $('dock').focus({preventScroll:true}); } }
+  function navigate(key){
+    closeNav(); Sound.sfx.click();
+    if(key==='hall') goHall(); else Modals.open(key);
+  }
+  function closeNav(){ $('mainNav').classList.remove('open'); $('menuBtn').setAttribute('aria-expanded','false'); }
+
+  function init(){
+    Cast.mount(); UI.initDust(); UI.bindSettings(); UI.initMusicPanel();
+    GameState.render(); Chronicle.renderSummary(); Music.updateUI(); Music.armAutostart();
+    showPanel('idle'); setState('menu');
+    form.addEventListener('submit',onSubmit);
+    Grade.KEYS.forEach(k=>{ const inp=$(k); inp.addEventListener('input',()=>{ if(fieldEl(k).classList.contains('invalid')||inp.value.trim()!=='') validateField(k,false); $('formError').textContent=''; }); inp.addEventListener('blur',()=>{ if(inp.value.trim()!=='') validateField(k,false); }); });
+    $('clearBtn').addEventListener('click',()=>{ resetForm(); $('tareas').focus(); });
+    $('reviseBtn').addEventListener('click',()=>{ if(state!=='review') return; setState('input'); showPanel('form'); $('tareas').focus(); });
+    $('deliverBtn').addEventListener('click',deliver);
+    $('btnNueva').addEventListener('click',()=>{ if(state==='verdict') startEval(); });
+    $('btnCronica').addEventListener('click',()=>Modals.open('cronica'));
+    $('btnMenu').addEventListener('click',toMenu);
+    $('brandBtn').addEventListener('click',toMenu);
+    $$('[data-nav]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.nav)));
+    $('menuBtn').addEventListener('click',()=>{ const o=$('mainNav').classList.toggle('open'); $('menuBtn').setAttribute('aria-expanded',String(o)); });
+    $('clearChronBtn').addEventListener('click',async()=>{
+      if(!Chronicle.count()) return;
+      const ok=await Modals.confirm({title:'¿Limpiar el historial?',text:'Se borrarán todas las evaluaciones de la crónica. Tu experiencia y nivel se conservan.',yes:'Limpiar historial'});
+      if(ok){ Chronicle.clear(); UI.toast('Historial limpiado.'); }
+    });
+    $('titleMenu').addEventListener('keydown',e=>{
+      if(e.key!=='ArrowDown'&&e.key!=='ArrowUp') return;
+      const items=$$('.menu-item'),i=items.indexOf(document.activeElement); if(i<0) return;
+      e.preventDefault(); items[(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length].focus();
+    });
+    document.addEventListener('keydown',e=>{
+      const typing=/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+      if(e.key==='Escape'){
+        if(Modals.isOpen) Modals.closeTop(); else if(UI.musicOpen){ UI.closeMusic(); $('musicBtn').focus(); } else closeNav();
+        return;
+      }
+      if((e.key==='m'||e.key==='M')&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!Modals.isOpen){ Music.toggle(); return; }
+      if((e.key==='Enter'||e.key===' ')&&Dialogue.active&&!Modals.isOpen&&!e.target.closest('button,a,input,select,textarea,[role="switch"],[role="radio"]')){ e.preventDefault(); Dialogue.next(); }
+    });
+    addEventListener('storage',e=>{ if(e.key&&e.key.indexOf('aldemar_')===0){ GameState.reload(); Chronicle.reload(); } });
+    $('startBtn').focus({preventScroll:true});
+  }
+  return {init,showPanel,syncNav};
+})();
+
+App.init();
+})();
+
+</script>
+</body>
+</html>
